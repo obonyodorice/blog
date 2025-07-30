@@ -1,15 +1,44 @@
-from django.urls import path
-from .views import HomeView,  ArticleDetailView, AddPostView, UpdatePostView, DeletePostView, AddCommentView, AddCategoryView, category_view, like_view, category_list_view
+from django import forms
+from .models import Post, Comment, Newsletter
 
-urlpatterns = [
-    path('', HomeView.as_view(), name='home'),
-    path('article/<int:pk>',  ArticleDetailView.as_view(), name='article-detail'),
-    path('add_post/', AddPostView.as_view(), name='add_post'),
-    path('add_category/', AddCategoryView.as_view(), name='add_category'),
-    path('article/edit/<int:pk>', UpdatePostView.as_view(), name='update_post'),
-    path('article/delete/<int:pk>/remove', DeletePostView.as_view(), name='delete_post'),
-    path('category/<str:cats>/', category_view, name='category'),
-    path('category-list/', category_list_view, name='category-list'),
-    path('like/<int:pk>/', like_view, name="like_post"),
-    path('article/<int:pk>/comment/', AddCommentView.as_view(), name='add_comment'),
-]
+class PostForm(forms.ModelForm):
+    """Form for creating/editing posts"""
+    class Meta:
+        model = Post
+        fields = [
+            'title', 'category', 'content', 'excerpt', 
+            'featured_image', 'tags', 'status', 'is_featured'
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'excerpt': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'tags': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter tags separated by commas'
+            }),
+        }
+
+class CommentForm(forms.ModelForm):
+    """Form for adding comments"""
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'rows': 4,
+                'class': 'form-control',
+                'placeholder': 'Write your comment here...'
+            })
+        }
+
+class NewsletterForm(forms.ModelForm):
+    """Newsletter subscription form"""
+    class Meta:
+        model = Newsletter
+        fields = ['email']
+        widgets = {
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your email'
+            })
+        }
