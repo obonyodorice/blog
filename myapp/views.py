@@ -23,13 +23,13 @@ def category_view(request, cats):
 
 def category_list_view(request):
     cat_menu_list = Category.objects.all()
-    return render(request, 'category_list.html', {'cat_menu_list':cat_menu_list})
+    return render(request, 'myapp/category_list.html', {'cat_menu_list':cat_menu_list})
 
   
 # class based views
 class HomeView(ListView):
     model = Post
-    template_name = 'home.html'
+    template_name = 'myapp/home.html'
     ordering = ['-post_date']
     # ordering = ['-id']
 
@@ -42,7 +42,7 @@ class HomeView(ListView):
 
 class ArticleDetailView(DetailView):
     model = Post
-    template_name = 'article_details.html'
+    template_name = 'myapp/article_details.html'
 
     
     def get_context_data(self, *args, **kwargs):
@@ -65,14 +65,14 @@ class ArticleDetailView(DetailView):
 class AddPostView(CreateView):
     model = Post
     form_class = PostForm
-    template_name = 'add_post.html'
+    template_name = 'myapp/add_post.html'
     #fields = '__all__' 
     #fields = ('title', 'body')
 
 class AddCommentView(CreateView):
     model = Comment
     form_class = CommentForm
-    template_name = 'add_comment.html'
+    template_name = 'myapp/add_comment.html'
     # fields = '__all__' 
     success_url = reverse_lazy('home')
 
@@ -85,19 +85,19 @@ class AddCommentView(CreateView):
 class AddCategoryView(CreateView):
     model = Category
     #form_class = PostForm
-    template_name = 'add_category.html'
+    template_name = 'myapp/add_category.html'
     fields = '__all__'
     #fields = ('title', 'body')
 
 class UpdatePostView(UpdateView):
     model = Post
     form_class = EditForm
-    template_name = 'update_post.html' 
+    template_name = 'myapp/update_post.html' 
     #fields = ('title', 'title_tag', 'body')
 
 class DeletePostView(DeleteView):
     model = Post
-    template_name = 'delete_post.html'
+    template_name = 'myapp/delete_post.html'
     success_url = reverse_lazy('home')
 
 

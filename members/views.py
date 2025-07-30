@@ -13,7 +13,7 @@ from myapp.models import Profile
 class CreateProfilePageView(CreateView):
     model = Profile
     form_class = ProfilePageForm
-    template_name = 'registration/create_user_profile_page.html'
+    template_name = 'members/create_user_profile_page.html'
     # fields = '__all__'
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -23,14 +23,14 @@ class CreateProfilePageView(CreateView):
 
 class EditProfilePageView(generic.UpdateView):
     model = Profile
-    template_name = 'registration/edit_profile_page.html'
+    template_name = 'members/edit_profile_page.html'
     fields = ['bio', 'profile_pic', 'website_url', 'facebook_url', 'x_url', 'instagram_url', 'pinterest_url']
     success_url = reverse_lazy('login')
     
 
 class ShowProfilePageView(DetailView):
     model = Profile
-    template_name = 'registration/user_profile.html'
+    template_name = 'members/user_profile.html'
 
     def get_context_data(self, *args, **kwargs):
         #cat_menu = Profile.objects.all()
@@ -42,7 +42,7 @@ class ShowProfilePageView(DetailView):
         return context
 
 def password_success(request):
-    return render(request, 'registration/password_success.html', {})
+    return render(request, 'members/password_success.html', {})
 
 class PasswordsChangeView(views.PasswordChangeView):
     #form_class = PasswordChangeForm
@@ -53,12 +53,12 @@ class PasswordsChangeView(views.PasswordChangeView):
 
 class UserRegisterView(generic.CreateView):
     form_class = SignUpForm
-    template_name = 'registration/register.html'
+    template_name = 'members/register.html'
     success_url = reverse_lazy('login')
 
 class UserEditView(generic.UpdateView):
     form_class = EditProfileForm
-    template_name = 'registration/edit_profile.html'
+    template_name = 'members/edit_profile.html'
     success_url = reverse_lazy('login')
 
     def get_object(self):
