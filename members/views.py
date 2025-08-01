@@ -1,66 +1,99 @@
-from django.forms import BaseModelForm
-from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
-from django.views import generic
-from django.views.generic import DetailView, CreateView
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.views.generic import DetailView, UpdateView, ListView,CreateView
 from django.urls import reverse_lazy
-from .forms import SignUpForm, EditProfileForm, PasswordChangingForm, ProfilePageForm
-from django.contrib.auth import views 
-from myapp.models import Profile
+from django.db.models import Q, Count
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import CustomUser, UserFollowing
+from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
+from myapp.models import Post, Category, Newsletter
+from django.db.models import Sum
 
-# Create your views here.
-class CreateProfilePageView(CreateView):
-    model = Profile
-    form_class = ProfilePageForm
-    template_name = 'members/create_user_profile_page.html'
-    # fields = '__all__'
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-        
-
-class EditProfilePageView(generic.UpdateView):
-    model = Profile
-    template_name = 'members/edit_profile_page.html'
-    fields = ['bio', 'profile_pic', 'website_url', 'facebook_url', 'x_url', 'instagram_url', 'pinterest_url']
-    success_url = reverse_lazy('login')
+class SignUpView(CreateView):
+    """User registration view"""
+    form_class = UserRegistrationForm
+    template_name = 'members/signup.html'
+    success_url = reverse_lazy('members:login')
     
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Account created successfully! You can now log in.')
+        return response
 
-class ShowProfilePageView(DetailView):
-    model = Profile
-    template_name = 'members/user_profile.html'
-
-    def get_context_data(self, *args, **kwargs):
-        #cat_menu = Profile.objects.all()
-        context = super(ShowProfilePageView, self).get_context_data(*args, **kwargs)
-
-        page_user = get_object_or_404(Profile, id=self.kwargs['pk'])
-
-        context["page_user"] = page_user
+class ProfileView(DetailView):
+    """User profile view"""
+    model = CustomUser
+    template_name = 'members/profile.html'
+    context_object_name = 'profile_user'
+    slug_field = 'username'
+    slug_url_kwarg = 'username'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Add statistics
+        context['total_posts'] = Post.objects.filter(status='published').count()
+        context['total_categories'] = Category.objects.count()
+        context['total_views'] = Post.objects.aggregate(Sum('views'))['views__sum'] or 0
+        context['total_subscribers'] = Newsletter.objects.filter(is_active=True).count()
+        
         return context
 
-def password_success(request):
-    return render(request, 'members/password_success.html', {})
-
-class PasswordsChangeView(views.PasswordChangeView):
-    #form_class = PasswordChangeForm
-    form_class = PasswordChangingForm
-    #success_url = reverse_lazy('password_success')
-    success_url = reverse_lazy('home')
-
-
-class UserRegisterView(generic.CreateView):
-    form_class = SignUpForm
-    template_name = 'members/register.html'
-    success_url = reverse_lazy('login')
-
-class UserEditView(generic.UpdateView):
-    form_class = EditProfileForm
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    """Update user profile"""
+    model = CustomUser
+    form_class = ProfileUpdateForm
     template_name = 'members/edit_profile.html'
-    success_url = reverse_lazy('login')
-
+    
     def get_object(self):
         return self.request.user
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Profile updated successfully!')
+        return super().form_valid(form)
 
+class FollowersListView(LoginRequiredMixin, ListView):
+    """List user's followers"""
+    template_name = 'members/followers.html'
+    context_object_name = 'followers'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        username = self.kwargs['username']
+        user = get_object_or_404(CustomUser, username=username)
+        return user.followers.select_related('user').order_by('-created_at')
+
+@login_required
+@require_POST
+def follow_unfollow_user(request):
+    """AJAX view to follow/unfollow users"""
+    user_id = request.POST.get('user_id')
+    user_to_follow = get_object_or_404(CustomUser, id=user_id)
+    
+    if user_to_follow == request.user:
+        return JsonResponse({'error': 'Cannot follow yourself'}, status=400)
+    
+    following, created = UserFollowing.objects.get_or_create(
+        user=request.user,
+        following_user=user_to_follow
+    )
+    
+    if not created:
+        following.delete()
+        is_following = False
+        action = 'unfollowed'
+    else:
+        is_following = True
+        action = 'followed'
+    
+    return JsonResponse({
+        'is_following': is_following,
+        'action': action,
+        'followers_count': user_to_follow.followers.count()
+    })
