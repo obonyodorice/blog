@@ -1,16 +1,43 @@
-
 from django.urls import path
-from .views import UserRegisterView, UserEditView
 from django.contrib.auth import views as auth_views
-from .views import PasswordsChangeView, password_success, ShowProfilePageView, EditProfilePageView, CreateProfilePageView
-#from . import views
+from . import views
+
+app_name = 'members'
+
 urlpatterns = [
-    path('register/', UserRegisterView.as_view() , name='register'),
-    path('edit_profile/', UserEditView.as_view(), name='edit_profile'),
-    path('password/', PasswordsChangeView.as_view(template_name='registration/change-password.html')),
-    path('password_success/', password_success, name='password_success'),
-    path('<int:pk>/profile/', ShowProfilePageView.as_view(), name='show_profile_page'),
-    path('<int:pk>/edit_profile_page/', EditProfilePageView.as_view(), name='edit_profile_page'),
-    path('create_profile_page/', CreateProfilePageView.as_view(), name='create_profile_page'),
+    # Authentication URLs
+    path('signup/', views.SignUpView.as_view(), name='signup'),
+    path('login/', auth_views.LoginView.as_view(template_name='members/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     
+    # Password reset URLs
+    path('password-reset/', 
+         auth_views.PasswordResetView.as_view(
+             template_name='members/password_reset.html',
+             email_template_name='members/password_reset_email.html'
+         ), 
+         name='password_reset'),
+    path('password-reset/done/', 
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='members/password_reset_done.html'
+         ), 
+         name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', 
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='members/password_reset_confirm.html'
+         ), 
+         name='password_reset_confirm'),
+    path('reset/done/', 
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='members/password_reset_complete.html'
+         ), 
+         name='password_reset_complete'),
+    
+    # Profile URLs
+    path('profile/<str:username>/', views.ProfileView.as_view(), name='profile'),
+    path('edit-profile/', views.ProfileUpdateView.as_view(), name='edit_profile'),
+    path('followers/<str:username>/', views.FollowersListView.as_view(), name='followers'),
+    
+    # AJAX URLs
+    path('follow/', views.follow_unfollow_user, name='follow_unfollow'),
 ]
