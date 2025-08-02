@@ -1,125 +1,572 @@
-<!doctype html>
- <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Personal Blog{% endblock %}</title>
+    
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --background-cream: #fefcf8;
+            --background-white: #ffffff;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --border-light: #e2e8f0;
+            --shadow-light: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
 
-    <title> Blog App </title>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="{% url 'home' %}">My Freakin' Awesome Blog</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-          <!-- Category Menu Code -->
-          {% if cat_menu %}
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Categories
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-cream);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Header Styles */
+        .navbar {
+            background-color: var(--background-white);
+            box-shadow: var(--shadow-light);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark) !important;
+            text-decoration: none;
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            margin: 0 0.25rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            background-color: var(--primary-color);
+            color: white !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--background-white) 0%, var(--background-cream) 100%);
+            padding: 4rem 0;
+            margin-bottom: 3rem;
+        }
+
+        .hero-content h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-content .lead {
+            font-size: 1.25rem;
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            color: white;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-outline-custom {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+        }
+
+        .btn-outline-custom:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        /* Card Styles */
+        .card-modern {
+            background-color: var(--background-white);
+            border: none;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card-modern:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-large);
+        }
+
+        .card-modern .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-modern .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-modern .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .card-modern .card-text {
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+        }
+
+        .card-modern .card-meta {
+            font-size: 0.875rem;
+            color: var(--text-gray);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Section Styles */
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        /* About Section */
+        .about-section {
+            background-color: var(--background-white);
+            padding: 4rem 0;
+            margin: 3rem 0;
+            border-radius: 1rem;
+        }
+
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-content p {
+            font-size: 1.125rem;
+            color: var(--text-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 3rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--background-white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        /* Newsletter Section */
+        .newsletter-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            padding: 4rem 0;
+            margin: 3rem 0;
+            border-radius: 1rem;
+            color: white;
+        }
+
+        .newsletter-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form .form-control {
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+
+        .newsletter-form .btn {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--text-dark);
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+        }
+
+        .footer h5 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .btn-outline-custom {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background-cream);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'myapp:home' %}">
+                <i class="fas fa-feather-alt me-2"></i>Personal Blog
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-
-              {% for item in cat_menu %}
-              <a class="dropdown-item" href="{% url 'category' item|slugify %}">{{ item }}</a>
-              {% endfor %}
-
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'myapp:home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'myapp:post_create' %}">Write</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>{{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'members:profile' user.username %}">My Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'members:edit_profile' %}">Edit Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'members:logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'members:login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'members:signup' %}">Sign Up</a>
+                    </li>
+                    {% endif %}
+                </ul>
             </div>
-          </li>
-          {% else %}
-          
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'category-list' %}"> Categories </a>
-          </li>
-
-          {% endif %}
-
-          {% if user.is_authenticated %}
-
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'add_category' %}">Add Category</a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'add_post' %}">Add Post</a>
-            </li>
-
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Profile
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-
-                  <a class="dropdown-item" href="{% url 'edit_profile' %}"> Edit Settings </a>
-
-                  {% if user.profile.id %}
-                    <a class="dropdown-item" href="{% url 'edit_profile_page' user.profile.id %}"> Edit Profile Page </a>
-                    <a class="dropdown-item" href="{% url 'show_profile_page' user.profile.id %}"> Show Profile Page </a>
-                  {% else %}
-                    <a class="dropdown-item" href="{% url 'create_profile_page' %}"> Create Profile Page </a>
-                  {% endif %}
-
-                </div>
-              </li>
-
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}"> Logout </a>  
-            <li>
-      
-      
-
-
-            <!--
-              <form action="{% url 'logout' %}" method="post">
-              {% csrf_token %}
-              <button type="submit">Log Out</button>
-              </form>
-
-           -->
-
-           {% else %}
-
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'register' %}">Register</a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
-            </li>
-
-
-           {% endif %}
-          </ul>
-
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">{{ user.first_name}}</a>
-            </li>
-          </ul>
-
         </div>
-      </nav>
-    <br/>
-    <div class="container">
+    </nav>
 
-        {% block content %}
-
-        {% endblock %}
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
     </div>
+    {% endif %}
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-  </body>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h5>Personal Blog</h5>
+                    <p>A place for sharing thoughts, experiences, and insights. Join our community of readers and writers.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'myapp:home' %}">Home</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'myapp:post_create' %}">Write</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Categories</h5>
+                    <ul class="list-unstyled">
+                        {% for category in categories %}
+                        <li><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>
+                        {% empty %}
+                        <li><span class="text-muted">No categories yet</span></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Contact Info</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i>contact@personalblog.com</li>
+                        <li><i class="fas fa-phone me-2"></i>+1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>Nairobi, Kenya</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; {% now "Y" %} Personal Blog. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">Made with <i class="fas fa-heart text-danger"></i> using Django</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Fade-in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Active nav link highlighting
+        const currentLocation = location.pathname;
+        const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentLocation) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
 </html>
