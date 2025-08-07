@@ -9,7 +9,7 @@ from django.db.models import Q, Count
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .models import CustomUser, UserFollowing
-from .forms import UserRegistrationForm, UserUpdateForm, ProfileUpdateForm
+from .forms import UserRegistrationForm, ProfileUpdateForm
 from myapp.models import Post, Category, Newsletter
 from django.db.models import Sum
 
