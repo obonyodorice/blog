@@ -9,14 +9,14 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.utils import timezone
-from taggit.models import Tag
+# from taggit.models import Tag
 from .models import Post, Category, Comment, Like, Newsletter
 from .forms import PostForm, CommentForm, NewsletterForm
 
 class HomeView(ListView):
     """Homepage with featured and recent posts"""
     model = Post
-    template_name = 'myapp/home.html'
+    template_name = 'myapp/../home.html'
     context_object_name = 'posts'
     paginate_by = 6
     
@@ -48,7 +48,7 @@ class HomeView(ListView):
         ).filter(post_count__gt=0)
         
         # Popular tags
-        context['popular_tags'] = Tag.objects.most_common()[:10]
+        # context['popular_tags'] = Tag.objects.most_common()[:10]
         
         return context
 
