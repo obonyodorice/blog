@@ -1,16 +1,414 @@
-{% extends '../base.html '%}
-{% block title %} Edit Profile {% endblock %}
-{% block content %}
+{% extends '../base.html' %}
 
-<h1> Edit Profile </h1>
-<br/> <br/>
-{{ user.profile.bio }}
-<br/> <br/>
-<div class="form-group">
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button> Update Profile </buttton>
+{% block title %}Edit Profile - Personal Blog{% endblock %}
+
+{% block content %}
+<div class="hero-section" style="padding: 2rem 0;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Header -->
+                <div class="text-center mb-5">
+                    <h1 class="serif-font" style="font-size: 2.5rem; color: var(--text-dark);">
+                        <i class="fas fa-user-edit text-primary me-3"></i>Edit Your Profile
+                    </h1>
+                    <p class="lead text-muted">Update your information and customize your profile</p>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row g-4">
+                        <!-- Profile Picture Section -->
+                        <div class="col-lg-4">
+                            <div class="card-modern h-100">
+                                <div class="card-body text-center" style="padding: 2rem;">
+                                    <h4 class="serif-font mb-4">Profile Picture</h4>
+                                    
+                                    <div class="profile-picture-preview mb-4">
+                                        {% if user.profile_picture %}
+                                            <img id="profile-preview" src="{{ user.profile_picture.url }}" 
+                                                 alt="Profile Picture" 
+                                                 class="rounded-circle shadow-lg"
+                                                 style="width: 180px; height: 180px; object-fit: cover; border: 5px solid var(--background-white);">
+                                        {% else %}
+                                            <div id="profile-preview" class="rounded-circle shadow-lg d-flex align-items-center justify-content-center mx-auto"
+                                                 style="width: 180px; height: 180px; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; font-size: 4rem; border: 5px solid var(--background-white);">
+                                                {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="{{ form.profile_picture.id_for_label }}" class="btn-outline-custom btn-sm">
+                                            <i class="fas fa-camera me-2"></i>Choose Photo
+                                        </label>
+                                        {{ form.profile_picture }}
+                                        {% if form.profile_picture.errors %}
+                                            <div class="text-danger mt-2 small">
+                                                {{ form.profile_picture.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <small class="text-muted">
+                                        Recommended: 300x300px, max 2MB<br>
+                                        JPG, PNG formats supported
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Profile Information -->
+                        <div class="col-lg-8">
+                            <div class="card-modern h-100">
+                                <div class="card-body" style="padding: 2rem;">
+                                    <h4 class="serif-font mb-4">Personal Information</h4>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-user me-2 text-primary"></i>First Name
+                                            </label>
+                                            {{ form.first_name|add_class:"form-control form-control-lg" }}
+                                            {% if form.first_name.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.first_name.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-user me-2 text-primary"></i>Last Name
+                                            </label>
+                                            {{ form.last_name|add_class:"form-control form-control-lg" }}
+                                            {% if form.last_name.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.last_name.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-12">
+                                            <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-envelope me-2 text-primary"></i>Email Address
+                                            </label>
+                                            {{ form.email|add_class:"form-control form-control-lg" }}
+                                            {% if form.email.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.email.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <label for="{{ form.birth_date.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-birthday-cake me-2 text-primary"></i>Birth Date
+                                            </label>
+                                            {{ form.birth_date|add_class:"form-control form-control-lg" }}
+                                            {% if form.birth_date.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.birth_date.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <label for="{{ form.location.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-map-marker-alt me-2 text-primary"></i>Location
+                                            </label>
+                                            {{ form.location|add_class:"form-control form-control-lg" }}
+                                            {% if form.location.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.location.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-12">
+                                            <label for="{{ form.website.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-globe me-2 text-primary"></i>Website
+                                            </label>
+                                            {{ form.website|add_class:"form-control form-control-lg" }}
+                                            {% if form.website.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.website.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                            <small class="form-text text-muted">Include http:// or https://</small>
+                                        </div>
+                                        
+                                        <div class="col-12">
+                                            <label for="{{ form.bio.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-quote-left me-2 text-primary"></i>Bio
+                                            </label>
+                                            {{ form.bio|add_class:"form-control" }}
+                                            {% if form.bio.errors %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form.bio.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                            <small class="form-text text-muted">Tell us about yourself (max 500 characters)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card-modern">
+                                <div class="card-body text-center" style="padding: 2rem;">
+                                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                        <button type="submit" class="btn-primary-custom">
+                                            <i class="fas fa-save me-2"></i>Save Changes
+                                        </button>
+                                        <a href="{% url 'members:profile' user.username %}" class="btn-outline-custom">
+                                            <i class="fas fa-times me-2"></i>Cancel
+                                        </a>
+                                        <button type="button" class="btn btn-light border" onclick="resetForm()">
+                                            <i class="fas fa-undo me-2"></i>Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
+<!-- Profile Preview Modal -->
+<div class="modal fade" id="profilePreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title serif-font">Profile Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="profile-preview-large mb-4">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" 
+                                 alt="Profile Preview" 
+                                 class="rounded-circle shadow-lg"
+                                 style="width: 200px; height: 200px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    <h3 class="serif-font" id="preview-name">{{ user.first_name }} {{ user.last_name }}</h3>
+                    <p class="text-muted" id="preview-bio">{{ user.bio|default:"No bio added yet." }}</p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        {% if user.location %}
+                            <span class="badge bg-light text-dark px-3 py-2">
+                                <i class="fas fa-map-marker-alt me-1"></i><span id="preview-location">{{ user.location }}</span>
+                            </span>
+                        {% endif %}
+                        {% if user.website %}
+                            <span class="badge bg-primary text-white px-3 py-2">
+                                <i class="fas fa-globe me-1"></i>Website
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    }
+    
+    .form-label {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .invalid-feedback {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    #id_profile_picture {
+        display: none;
+    }
+    
+    .profile-picture-preview {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .profile-picture-preview:hover {
+        transform: scale(1.05);
+    }
+    
+    .card-modern {
+        animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Character counter styles */
+    .char-counter {
+        font-size: 0.875rem;
+        color: var(--text-gray);
+        text-align: right;
+        margin-top: 0.25rem;
+    }
+    
+    .char-counter.warning {
+        color: #f59e0b;
+    }
+    
+    .char-counter.danger {
+        color: #ef4444;
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Profile picture preview
+    document.getElementById('{{ form.profile_picture.id_for_label }}').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('profile-preview');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (preview.tagName === 'IMG') {
+                    preview.src = e.target.result;
+                } else {
+                    // Replace div with img
+                    const newImg = document.createElement('img');
+                    newImg.id = 'profile-preview';
+                    newImg.src = e.target.result;
+                    newImg.alt = 'Profile Picture';
+                    newImg.className = 'rounded-circle shadow-lg';
+                    newImg.style.cssText = 'width: 180px; height: 180px; object-fit: cover; border: 5px solid var(--background-white);';
+                    preview.parentNode.replaceChild(newImg, preview);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Bio character counter
+    const bioTextarea = document.getElementById('{{ form.bio.id_for_label }}');
+    const maxLength = 500;
+    
+    // Create character counter
+    const counterDiv = document.createElement('div');
+    counterDiv.className = 'char-counter';
+    bioTextarea.parentNode.appendChild(counterDiv);
+    
+    function updateCharCounter() {
+        const currentLength = bioTextarea.value.length;
+        const remaining = maxLength - currentLength;
+        counterDiv.textContent = `${currentLength}/${maxLength} characters`;
+        
+        counterDiv.className = 'char-counter';
+        if (remaining < 50) {
+            counterDiv.classList.add(remaining < 20 ? 'danger' : 'warning');
+        }
+    }
+    
+    bioTextarea.addEventListener('input', updateCharCounter);
+    updateCharCounter(); // Initialize counter
+    
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            const forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+    
+    // Reset form function
+    function resetForm() {
+        if (confirm('Are you sure you want to reset all changes?')) {
+            document.querySelector('form').reset();
+            updateCharCounter();
+            
+            // Reset profile picture preview
+            const preview = document.getElementById('profile-preview');
+            {% if user.profile_picture %}
+                if (preview.tagName === 'IMG') {
+                    preview.src = '{{ user.profile_picture.url }}';
+                }
+            {% else %}
+                // Reset to initials if no profile picture
+                location.reload();
+            {% endif %}
+        }
+    }
+    
+    // Live preview updates
+    document.getElementById('{{ form.first_name.id_for_label }}').addEventListener('input', function() {
+        updatePreview();
+    });
+    
+    document.getElementById('{{ form.last_name.id_for_label }}').addEventListener('input', function() {
+        updatePreview();
+    });
+    
+    document.getElementById('{{ form.bio.id_for_label }}').addEventListener('input', function() {
+        updatePreview();
+    });
+    
+    function updatePreview() {
+        const firstName = document.getElementById('{{ form.first_name.id_for_label }}').value;
+        const lastName = document.getElementById('{{ form.last_name.id_for_label }}').value;
+        const bio = document.getElementById('{{ form.bio.id_for_label }}').value;
+        
+        const previewName = document.getElementById('preview-name');
+        const previewBio = document.getElementById('preview-bio');
+        
+        if (previewName) previewName.textContent = `${firstName} ${lastName}`.trim() || 'Your Name';
+        if (previewBio) previewBio.textContent = bio || 'No bio added yet.';
+    }
+    
+    // Add preview button
+    const previewBtn = document.createElement('button');
+    previewBtn.type = 'button';
+    previewBtn.className = 'btn btn-info me-2';
+    previewBtn.innerHTML = '<i class="fas fa-eye me-2"></i>Preview';
+    previewBtn.setAttribute('data-bs-toggle', 'modal');
+    previewBtn.setAttribute('data-bs-target', '#profilePreviewModal');
+    
+    const saveBtn = document.querySelector('button[type="submit"]');
+    saveBtn.parentNode.insertBefore(previewBtn, saveBtn);
+</script>
+
+{% load widget_tweaks %}
 {% endblock %}
