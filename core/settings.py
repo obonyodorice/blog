@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     # 'taggit',
     'ckeditor',
     'ckeditor_uploader',
+    'widget_tweaks',
     # 'django_ckeditor_5'
 ]
 
