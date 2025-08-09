@@ -2,201 +2,861 @@
 
 {% block title %}Home - Personal Blog{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Modal Styles */
+    .post-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        display: none;
+        overflow-y: auto;
+        backdrop-filter: blur(10px);
+    }
+
+    .post-modal.active {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .modal-content {
+        background: var(--background-white);
+        border-radius: 1rem;
+        max-width: 900px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        animation: modalSlideIn 0.3s ease-out;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .modal-header {
+        position: sticky;
+        top: 0;
+        background: var(--background-white);
+        border-bottom: 1px solid var(--border-light);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        border-radius: 1rem 1rem 0 0;
+        z-index: 10;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+
+    .modal-btn {
+        background: none;
+        border: 2px solid var(--border-light);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--text-gray);
+    }
+
+    .modal-btn:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: scale(1.1);
+    }
+
+    .modal-btn.expand-btn:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .modal-btn.close-btn:hover {
+        background: #ef4444;
+        border-color: #ef4444;
+        color: white;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .modal-post-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        color: var(--text-gray);
+        flex-wrap: wrap;
+    }
+
+    .modal-post-meta .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-post-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+
+    .modal-post-image {
+        width: 100%;
+        max-height: 400px;
+        object-fit: cover;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .modal-post-content {
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: var(--text-dark);
+    }
+
+    .modal-post-content p {
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-post-content h1, 
+    .modal-post-content h2, 
+    .modal-post-content h3 {
+        font-family: 'Playfair Display', serif;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+
+    .modal-footer {
+        border-top: 1px solid var(--border-light);
+        padding: 1.5rem 2rem;
+        background: var(--background-cream);
+        border-radius: 0 0 1rem 1rem;
+    }
+
+    .modal-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .modal-tag {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        text-decoration: none;
+    }
+
+    .modal-actions-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .reading-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+        z-index: 10000;
+        transition: width 0.3s ease;
+        width: 0%;
+    }
+
+    /* Card hover effects */
+    .card-modern {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-modern::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: all 0.4s ease;
+        z-index: 1;
+    }
+
+    .card-modern:hover::before {
+        width: 200%;
+        height: 200%;
+    }
+
+    .card-modern:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-modern .card-body {
+        position: relative;
+        z-index: 2;
+    }
+
+    .read-more-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(transparent 50%, rgba(37, 99, 235, 0.1) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: inherit;
+    }
+
+    .card-modern:hover .read-more-overlay {
+        opacity: 1;
+    }
+
+    .read-more-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+    }
+
+    .card-modern:hover .read-more-btn {
+        transform: translateY(0);
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .post-modal.active {
+            padding: 0;
+        }
+
+        .modal-content {
+            max-height: 100vh;
+            border-radius: 0;
+            margin: 0;
+        }
+
+        .modal-header {
+            border-radius: 0;
+        }
+
+        .modal-footer {
+            border-radius: 0;
+        }
+
+        .modal-post-title {
+            font-size: 1.5rem;
+        }
+
+        .modal-post-content {
+            font-size: 1rem;
+        }
+
+        .modal-actions-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+
+    /* Loading State */
+    .modal-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem;
+        color: var(--text-gray);
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border-light);
+        border-top: 3px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Custom scrollbar for modal */
+    .modal-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 4px;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-dark);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+    <!-- Reading Progress Bar -->
+    <div class="reading-progress" id="reading-progress"></div>
+
+    <!-- Original Home Content -->
     <section class="hero-section">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-6">
-                        <div class="hero-content">
-                            <h1 class="fade-in">Welcome to My Personal Blog</h1>
-                            <p class="lead fade-in">Discover stories, insights, and experiences that inspire and inform. Join me on this journey of creativity and learning.</p>
-                            <div class="fade-in">
-                                <a href="#featured-posts" class="btn-primary-custom">Explore Posts</a>
-                                <a href="#about" class="btn-outline-custom">Learn More</a>
-                            </div>
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-content">
+                        <h1 class="fade-in">Welcome to My Personal Blog</h1>
+                        <p class="lead fade-in">Discover stories, insights, and experiences that inspire and inform. Join me on this journey of creativity and learning.</p>
+                        <div class="fade-in">
+                            <a href="#featured-posts" class="btn-primary-custom">Explore Posts</a>
+                            <a href="#about" class="btn-outline-custom">Learn More</a>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="hero-image text-center fade-in">
-                            <i class="fas fa-blog" style="font-size: 12rem; color: var(--primary-color); opacity: 0.1;"></i>
-                        </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-image text-center fade-in">
+                        <i class="fas fa-blog" style="font-size: 12rem; color: var(--primary-color); opacity: 0.1;"></i>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Stats Section -->
-        <section class="stats-section">
-            <div class="container">
-                <div class="row g-4">
-                    <div class="col-md-3">
-                        <div class="stat-item fade-in">
-                            <span class="stat-number">{{ total_posts|default:"0" }}</span>
-                            <span class="stat-label">Blog Posts</span>
-                        </div>
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="stat-item fade-in">
+                        <span class="stat-number">{{ total_posts|default:"0" }}</span>
+                        <span class="stat-label">Blog Posts</span>
                     </div>
-                    <div class="col-md-3">
-                        <div class="stat-item fade-in">
-                            <span class="stat-number">{{ total_categories|default:"0" }}</span>
-                            <span class="stat-label">Categories</span>
-                        </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item fade-in">
+                        <span class="stat-number">{{ total_categories|default:"0" }}</span>
+                        <span class="stat-label">Categories</span>
                     </div>
-                    <div class="col-md-3">
-                        <div class="stat-item fade-in">
-                            <span class="stat-number">{{ total_views|default:"0" }}</span>
-                            <span class="stat-label">Total Views</span>
-                        </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item fade-in">
+                        <span class="stat-number">{{ total_views|default:"0" }}</span>
+                        <span class="stat-label">Total Views</span>
                     </div>
-                    <div class="col-md-3">
-                        <div class="stat-item fade-in">
-                            <span class="stat-number">{{ total_subscribers|default:"0" }}</span>
-                            <span class="stat-label">Subscribers</span>
-                        </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item fade-in">
+                        <span class="stat-number">{{ total_subscribers|default:"0" }}</span>
+                        <span class="stat-label">Subscribers</span>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Featured Posts -->
-        <section id="featured-posts" class="py-5">
-            <div class="container">
-                <h2 class="section-title fade-in">Featured Posts</h2>
-                <div class="row g-4">
-                    {% for post in featured_posts %}
-                    <div class="col-lg-4 col-md-6">
-                        <article class="card-modern fade-in">
-                            {% if post.featured_image %}
-                            <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
-                            {% else %}
-                            <div class="card-img-top d-flex align-items-center justify-content-center bg-light">
-                                <i class="fas fa-image fa-3x text-muted"></i>
-                            </div>
-                            {% endif %}
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
-                                        {{ post.title }}
-                                    </a>
-                                </h5>
-                                <p class="card-text">{{ post.excerpt|truncatewords:20 }}</p>
-                                <div class="card-meta">
-                                    <span><i class="fas fa-user me-1"></i>{{ post.author.username }}</span>
-                                    <span><i class="fas fa-calendar me-1"></i>{{ post.published_at|date:"M d, Y" }}</span>
-                                    <span><i class="fas fa-eye me-1"></i>{{ post.views }}</span>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                    {% empty %}
-                    <div class="col-12 text-center">
-                        <p class="text-muted">No featured posts yet. Check back soon!</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </section>
-
-        <!-- Recent Posts -->
-        <section class="py-5">
-            <div class="container">
-                <h2 class="section-title fade-in">Recent Posts</h2>
-                <div class="row g-4">
-                    {% for post in posts %}
-                    <div class="col-lg-4 col-md-6">
-                        <article class="card-modern fade-in">
-                            {% if post.featured_image %}
-                            <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
-                            {% else %}
-                            <div class="card-img-top d-flex align-items-center justify-content-center bg-light">
-                                <i class="fas fa-image fa-3x text-muted"></i>
-                            </div>
-                            {% endif %}
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
-                                        {{ post.title }}
-                                    </a>
-                                </h5>
-                                <p class="card-text">{{ post.excerpt|truncatewords:20 }}</p>
-                                <div class="card-meta">
-                                    <span><i class="fas fa-user me-1"></i>{{ post.author.username }}</span>
-                                    <span><i class="fas fa-calendar me-1"></i>{{ post.published_at|date:"M d, Y" }}</span>
-                                    <span><i class="fas fa-eye me-1"></i>{{ post.views }}</span>
-                                </div>
-                            </div>
-                        </article>
-                    </div>
-                    {% empty %}
-                    <div class="col-12 text-center">
-                        <p class="text-muted">No posts yet. Start writing your first post!</p>
-                    </div>
-                    {% endfor %}
-                </div>
-                
-                <!-- Pagination -->
-                {% if is_paginated %}
-                <nav aria-label="Posts pagination" class="mt-5">
-                    <ul class="pagination justify-content-center">
-                        {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                        </li>
+    <!-- Featured Posts -->
+    <section id="featured-posts" class="py-5">
+        <div class="container">
+            <h2 class="section-title fade-in">Featured Posts</h2>
+            <div class="row g-4">
+                {% for post in featured_posts %}
+                <div class="col-lg-4 col-md-6">
+                    <article class="card-modern fade-in" data-post-slug="{{ post.slug }}">
+                        {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
+                        {% else %}
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
                         {% endif %}
-                        
-                        {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ num }}</span>
-                        </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                        </li>
-                        {% endif %}
-                        {% endfor %}
-                        
-                        {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- About Section -->
-        <section id="about" class="about-section">
-            <div class="container">
-                <div class="about-content fade-in">
-                    <h2 class="section-title">About Me</h2>
-                    <p>Welcome to my personal blog where I share my thoughts, experiences, and insights on technology, life, and everything in between. I'm passionate about creating meaningful content that resonates with readers and sparks interesting conversations.</p>
-                    <p>Through this platform, I aim to connect with like-minded individuals, share knowledge, and build a community of learners and creators. Whether you're here for the latest tech trends, personal stories, or professional insights, you'll find content that's both informative and engaging.</p>
-                    <p>Join me on this journey as we explore ideas, challenge perspectives, and grow together. Don't forget to subscribe to stay updated with the latest posts!</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Newsletter Section -->
-        <section class="newsletter-section">
-            <div class="container">
-                <div class="text-center">
-                    <h2 class="section-title text-white mb-4">Stay Updated</h2>
-                    <p class="lead mb-4">Subscribe to my newsletter and never miss a post. Get the latest articles delivered straight to your inbox.</p>
-                    <form method="post" action="{% url 'myapp:subscribe_newsletter' %}" class="newsletter-form">
-                        {% csrf_token %}
-                        <div class="input-group">
-                            <input type="email" name="email" class="form-control" placeholder="Enter your email address" required>
-                            <button class="btn btn-light" type="submit">
-                                <i class="fas fa-paper-plane me-2"></i>Subscribe
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                                    {{ post.title }}
+                                </a>
+                            </h5>
+                            <p class="card-text">{{ post.excerpt|truncatewords:20 }}</p>
+                            <div class="card-meta">
+                                <span><i class="fas fa-user me-1"></i>{{ post.author.username }}</span>
+                                <span><i class="fas fa-calendar me-1"></i>{{ post.published_at|date:"M d, Y" }}</span>
+                                <span><i class="fas fa-eye me-1"></i>{{ post.views }}</span>
+                            </div>
+                        </div>
+                        <div class="read-more-overlay">
+                            <button class="read-more-btn">
+                                <i class="fas fa-book-open me-2"></i>Quick Read
                             </button>
                         </div>
-                    </form>
+                    </article>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">No featured posts yet. Check back soon!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Posts -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="section-title fade-in">Recent Posts</h2>
+            <div class="row g-4">
+                {% for post in posts %}
+                <div class="col-lg-4 col-md-6">
+                    <article class="card-modern fade-in" data-post-slug="{{ post.slug }}">
+                        {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
+                        {% else %}
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                                    {{ post.title }}
+                                </a>
+                            </h5>
+                            <p class="card-text">{{ post.excerpt|truncatewords:20 }}</p>
+                            <div class="card-meta">
+                                <span><i class="fas fa-user me-1"></i>{{ post.author.username }}</span>
+                                <span><i class="fas fa-calendar me-1"></i>{{ post.published_at|date:"M d, Y" }}</span>
+                                <span><i class="fas fa-eye me-1"></i>{{ post.views }}</span>
+                            </div>
+                        </div>
+                        <div class="read-more-overlay">
+                            <button class="read-more-btn">
+                                <i class="fas fa-book-open me-2"></i>Quick Read
+                            </button>
+                        </div>
+                    </article>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">No posts yet. Start writing your first post!</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Posts pagination" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="about-content fade-in">
+                <h2 class="section-title">About Me</h2>
+                <p>Welcome to my personal blog where I share my thoughts, experiences, and insights on technology, life, and everything in between. I'm passionate about creating meaningful content that resonates with readers and sparks interesting conversations.</p>
+                <p>Through this platform, I aim to connect with like-minded individuals, share knowledge, and build a community of learners and creators. Whether you're here for the latest tech trends, personal stories, or professional insights, you'll find content that's both informative and engaging.</p>
+                <p>Join me on this journey as we explore ideas, challenge perspectives, and grow together. Don't forget to subscribe to stay updated with the latest posts!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title text-white mb-4">Stay Updated</h2>
+                <p class="lead mb-4">Subscribe to my newsletter and never miss a post. Get the latest articles delivered straight to your inbox.</p>
+                <form method="post" action="{% url 'myapp:subscribe_newsletter' %}" class="newsletter-form">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="email" name="email" class="form-control" placeholder="Enter your email address" required>
+                        <button class="btn btn-light" type="submit">
+                            <i class="fas fa-paper-plane me-2"></i>Subscribe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Post Modal -->
+    <div class="post-modal" id="post-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-actions">
+                    <button class="modal-btn expand-btn" id="expand-btn" title="Open Full Page">
+                        <i class="fas fa-expand-alt"></i>
+                    </button>
+                    <button class="modal-btn close-btn" id="close-modal" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
-        </section>
+            <div class="modal-body" id="modal-body">
+                <div class="modal-loading">
+                    <div class="loading-spinner"></div>
+                    <span>Loading post...</span>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
-       
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('post-modal');
+    const modalBody = document.getElementById('modal-body');
+    const closeBtn = document.getElementById('close-modal');
+    const expandBtn = document.getElementById('expand-btn');
+    const readingProgress = document.getElementById('reading-progress');
+    let currentPostUrl = '';
+
+    // Handle post card clicks
+    document.querySelectorAll('.card-modern').forEach(card => {
+        card.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const postSlug = this.dataset.postSlug;
+            if (!postSlug) return;
+
+            const postUrl = `/post/${postSlug}/`;
+            currentPostUrl = postUrl;
+            
+            // Show modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Load post content
+            loadPostContent(postUrl);
+        });
+    });
+
+    // Close modal
+    closeBtn.addEventListener('click', closeModal);
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Expand to full page
+    expandBtn.addEventListener('click', function() {
+        if (currentPostUrl) {
+            window.location.href = currentPostUrl;
+        }
+    });
+
+    // ESC key to close modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        readingProgress.style.width = '0%';
+    }
+
+    async function loadPostContent(url) {
+        try {
+            modalBody.innerHTML = `
+                <div class="modal-loading">
+                    <div class="loading-spinner"></div>
+                    <span>Loading post...</span>
+                </div>
+            `;
+
+            const response = await fetch(url);
+            const text = await response.text();
+            
+            // Parse the HTML response
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            
+            // Extract post content
+            const postContent = extractPostContent(doc);
+            modalBody.innerHTML = postContent;
+            
+            // Initialize modal features
+            initModalFeatures();
+            
+        } catch (error) {
+            modalBody.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h4>Error Loading Post</h4>
+                    <p class="text-muted">Failed to load post content. Please try again.</p>
+                    <button class="btn btn-primary" onclick="loadPostContent('${url}')">
+                        <i class="fas fa-refresh me-2"></i>Retry
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    function extractPostContent(doc) {
+        // Extract different parts of the post
+        const title = doc.querySelector('h1')?.textContent || 'Post Title';
+        const content = doc.querySelector('.post-content')?.innerHTML || 
+                       doc.querySelector('article')?.innerHTML || 
+                       'Content not available';
         
-       
+        const author = doc.querySelector('[class*="author"]')?.textContent || 'Unknown Author';
+        const date = doc.querySelector('[class*="date"]')?.textContent || 'Unknown Date';
+        const category = doc.querySelector('[class*="category"] a')?.textContent || 'Uncategorized';
+        const views = doc.querySelector('[class*="views"]')?.textContent || '0';
+        
+        const featuredImage = doc.querySelector('.post-header img, .post-image img, article img');
+        const imageHtml = featuredImage ? 
+            `<img src="${featuredImage.src}" alt="${title}" class="modal-post-image">` : '';
+
+        // Extract tags if available
+        const tagElements = doc.querySelectorAll('.tag-item, [class*="tag"] a');
+        const tagsHtml = tagElements.length > 0 ? 
+            `<div class="modal-tags">
+                ${Array.from(tagElements).map(tag => 
+                    `<span class="modal-tag">${tag.textContent.trim()}</span>`
+                ).join('')}
+            </div>` : '';
+
+        return `
+            <div class="modal-post-meta">
+                <div class="meta-item">
+                    <i class="fas fa-user"></i>
+                    <span>${author}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>${date}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-folder"></i>
+                    <span>${category}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-eye"></i>
+                    <span>${views} views</span>
+                </div>
+            </div>
+            
+            <h1 class="modal-post-title">${title}</h1>
+            
+            ${imageHtml}
+            
+            <div class="modal-post-content">
+                ${content}
+            </div>
+            
+            <div class="modal-footer">
+                ${tagsHtml}
+                
+                <div class="modal-actions-footer">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="sharePost()">
+                            <i class="fas fa-share-alt me-1"></i>Share
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" onclick="likePost()">
+                            <i class="fas fa-heart me-1"></i>Like
+                        </button>
+                    </div>
+                    <div class="text-muted small">
+                        <i class="fas fa-clock me-1"></i>
+                        <span id="reading-time">5 min read</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function initModalFeatures() {
+        // Calculate reading time
+        const content = modalBody.querySelector('.modal-post-content');
+        if (content) {
+            const wordCount = content.textContent.split(/\s+/).length;
+            const readingTime = Math.ceil(wordCount / 200); // 200 words per minute
+            const readingTimeElement = document.getElementById('reading-time');
+            if (readingTimeElement) {
+                readingTimeElement.textContent = `${readingTime} min read`;
+            }
+        }
+
+        // Reading progress
+        const modalContent = document.querySelector('.modal-content');
+        modalContent.addEventListener('scroll', updateReadingProgress);
+    }
+
+    function updateReadingProgress() {
+        const modalContent = document.querySelector('.modal-content');
+        const scrollTop = modalContent.scrollTop;
+        const scrollHeight = modalContent.scrollHeight - modalContent.clientHeight;
+        const progress = (scrollTop / scrollHeight) * 100;
+        readingProgress.style.width = Math.min(progress, 100) + '%';
+    }
+
+    // Share functionality
+    window.sharePost = function() {
+        if (navigator.share && currentPostUrl) {
+            navigator.share({
+                title: document.querySelector('.modal-post-title')?.textContent || 'Check out this post',
+                url: window.location.origin + currentPostUrl
+            });
+        } else {
+            // Fallback: copy to clipboard
+            const url = window.location.origin + currentPostUrl;
+            navigator.clipboard.writeText(url).then(() => {
+                // Show temporary notification
+                showNotification('Post URL copied to clipboard!');
+            });
+        }
+    };
+
+    // Like functionality
+    window.likePost = function() {
+        // Implement like functionality here
+        showNotification('Thanks for liking this post!');
+    };
+
+    function showNotification(message) {
+        // Create temporary notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            z-index: 10001;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    // Add CSS for notifications
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); }
+            to { transform: translateX(100%); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Fade-in animation for existing elements
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `all 0.6s ease ${index * 0.1}s`;
+        observer.observe(el);
+    });
+});
+</script>
+{% endblock %}
