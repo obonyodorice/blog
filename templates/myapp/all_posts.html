@@ -1,0 +1,707 @@
+{% extends '../base.html' %}
+
+{% block title %}All Posts - Personal Blog{% endblock %}
+
+{% block extra_css %}
+<style>
+    .archive-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        border-radius: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .archive-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)" /></svg>');
+        opacity: 0.3;
+    }
+    
+    .archive-header .container {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .filter-bar {
+        background-color: var(--background-white);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+        border: 1px solid var(--border-light);
+    }
+    
+    .filter-row {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .filter-select {
+        border: 2px solid var(--border-light);
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        background-color: var(--background-white);
+        color: var(--text-dark);
+        min-width: 120px;
+    }
+    
+    .filter-select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+    
+    .view-toggle {
+        margin-left: auto;
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .view-btn {
+        padding: 0.5rem;
+        border: 2px solid var(--border-light);
+        background: transparent;
+        border-radius: 0.5rem;
+        color: var(--text-gray);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .view-btn:hover,
+    .view-btn.active {
+        border-color: var(--primary-color);
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    /* Grid View */
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .post-grid-item {
+        background: var(--background-white);
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: var(--shadow-light);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+    }
+    
+    .post-grid-item:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-large);
+    }
+    
+    .post-grid-image {
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .post-grid-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .post-grid-item:hover .post-grid-image img {
+        transform: scale(1.05);
+    }
+    
+    /* List View */
+    .posts-list {
+        display: none;
+    }
+    
+    .posts-list.active {
+        display: block;
+    }
+    
+    .post-list-item {
+        background: var(--background-white);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-light);
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+    
+    .post-list-item:hover {
+        transform: translateX(10px);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    .post-list-content {
+        display: flex;
+        gap: 2rem;
+        align-items: flex-start;
+    }
+    
+    .post-list-image {
+        width: 200px;
+        height: 140px;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    
+    .post-list-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .post-list-text {
+        flex: 1;
+    }
+    
+    /* Timeline View */
+    .posts-timeline {
+        display: none;
+        position: relative;
+        padding-left: 2rem;
+    }
+    
+    .posts-timeline.active {
+        display: block;
+    }
+    
+    .posts-timeline::before {
+        content: '';
+        position: absolute;
+        left: 1rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, var(--primary-color), var(--primary-dark));
+        border-radius: 1px;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 3rem;
+        background: var(--background-white);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-left: 2rem;
+        box-shadow: var(--shadow-light);
+        border: 1px solid var(--border-light);
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -3rem;
+        top: 2rem;
+        width: 12px;
+        height: 12px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        border: 3px solid var(--background-white);
+        box-shadow: 0 0 0 3px var(--primary-color);
+    }
+    
+    .timeline-date {
+        position: absolute;
+        left: -8rem;
+        top: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        background: var(--background-white);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        border: 2px solid var(--primary-color);
+        font-size: 0.875rem;
+        white-space: nowrap;
+    }
+    
+    .posts-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: var(--background-white);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        text-align: center;
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-light);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: block;
+    }
+    
+    .stat-label {
+        color: var(--text-gray);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    .load-more-btn {
+        display: block;
+        margin: 3rem auto;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .load-more-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+    }
+    
+    .load-more-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    @media (max-width: 768px) {
+        .posts-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .view-toggle {
+            margin-left: 0;
+            justify-content: center;
+        }
+        
+        .post-list-content {
+            flex-direction: column;
+        }
+        
+        .post-list-image {
+            width: 100%;
+            height: 200px;
+        }
+        
+        .timeline-date {
+            position: static;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .timeline-item {
+            margin-left: 1rem;
+        }
+        
+        .posts-timeline {
+            padding-left: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Archive Header -->
+    <div class="archive-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="serif-font mb-3">
+                        <i class="fas fa-archive me-2"></i>All Posts
+                    </h1>
+                    <p class="lead mb-3">Explore our complete collection of blog posts</p>
+                    <div class="d-flex justify-content-center align-items-center gap-3">
+                        <span><i class="fas fa-newspaper me-2"></i>{{ posts.count }} Total Posts</span>
+                        <span><i class="fas fa-calendar me-2"></i>Since 2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Section -->
+    <div class="posts-stats">
+        <div class="stat-card">
+            <span class="stat-number">{{ total_posts|default:"0" }}</span>
+            <div class="stat-label">Total Posts</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ total_views|default:"0" }}</span>
+            <div class="stat-label">Total Views</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ total_categories|default:"0" }}</span>
+            <div class="stat-label">Categories</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ this_month_posts|default:"0" }}</span>
+            <div class="stat-label">This Month</div>
+        </div>
+    </div>
+    
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <form method="get" id="filter-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="category" class="fw-bold text-muted">Category:</label>
+                    <select name="category" id="category" class="filter-select">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="sort" class="fw-bold text-muted">Sort:</label>
+                    <select name="sort" id="sort" class="filter-select">
+                        <option value="latest" {% if request.GET.sort == 'latest' or not request.GET.sort %}selected{% endif %}>Latest First</option>
+                        <option value="oldest" {% if request.GET.sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                        <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Most Popular</option>
+                        <option value="views" {% if request.GET.sort == 'views' %}selected{% endif %}>Most Viewed</option>
+                        <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Title A-Z</option>
+                    </select>
+                </div>
+                
+                <div class="view-toggle">
+                    <button type="button" class="view-btn active" data-view="grid" title="Grid View">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button type="button" class="view-btn" data-view="list" title="List View">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button type="button" class="view-btn" data-view="timeline" title="Timeline View">
+                        <i class="fas fa-stream"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Grid View -->
+    <div class="posts-grid active" id="grid-view">
+        {% for post in posts %}
+        <article class="post-grid-item fade-in">
+            <div class="post-grid-image">
+                {% if post.featured_image %}
+                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                {% else %}
+                <div class="d-flex align-items-center justify-content-center bg-light h-100">
+                    <i class="fas fa-image fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                
+                {% if post.is_featured %}
+                <div class="position-absolute top-0 start-0 m-2">
+                    <span class="badge bg-warning text-dark">
+                        <i class="fas fa-star me-1"></i>Featured
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="p-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-primary">{{ post.category.name }}</span>
+                    <small class="text-muted">{{ post.published_at|date:"M d, Y" }}</small>
+                </div>
+                
+                <h3 class="serif-font h5 mb-3">
+                    <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                        {{ post.title }}
+                    </a>
+                </h3>
+                
+                <p class="text-muted mb-3">
+                    {{ post.excerpt|default:post.content|striptags|truncatewords:20 }}
+                </p>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="author-avatar" style="width: 30px; height: 30px; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">
+                            {{ post.author.username|first|upper }}
+                        </div>
+                        <small class="text-muted">{{ post.author.username }}</small>
+                    </div>
+                    
+                    <div class="d-flex gap-3">
+                        <small class="text-muted">
+                            <i class="fas fa-eye me-1"></i>{{ post.views }}
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-comment me-1"></i>{{ post.comments.count }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="empty-state py-5">
+                <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+                <h4>No posts found</h4>
+                <p class="text-muted">Try adjusting your filters or check back later for new content.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- List View -->
+    <div class="posts-list" id="list-view">
+        {% for post in posts %}
+        <article class="post-list-item fade-in">
+            <div class="post-list-content">
+                {% if post.featured_image %}
+                <div class="post-list-image">
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                </div>
+                {% endif %}
+                
+                <div class="post-list-text">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-primary">{{ post.category.name }}</span>
+                        <small class="text-muted">{{ post.published_at|date:"F d, Y" }}</small>
+                        {% if post.is_featured %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-star me-1"></i>Featured
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <h3 class="serif-font mb-3">
+                        <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                            {{ post.title }}
+                        </a>
+                    </h3>
+                    
+                    <p class="text-muted mb-3">
+                        {{ post.excerpt|default:post.content|striptags|truncatewords:30 }}
+                    </p>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="author-avatar" style="width: 32px; height: 32px; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.85rem;">
+                                {{ post.author.username|first|upper }}
+                            </div>
+                            <span class="text-muted">{{ post.author.get_full_name|default:post.author.username }}</span>
+                        </div>
+                        
+                        <div class="d-flex gap-3">
+                            <span class="text-muted">
+                                <i class="fas fa-eye me-1"></i>{{ post.views }}
+                            </span>
+                            <span class="text-muted">
+                                <i class="fas fa-comment me-1"></i>{{ post.comments.count }}
+                            </span>
+                            <span class="text-muted">
+                                <i class="fas fa-heart me-1"></i>{{ post.likes.count }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    
+    <!-- Timeline View -->
+    <div class="posts-timeline" id="timeline-view">
+        {% for post in posts %}
+        <article class="timeline-item fade-in">
+            <div class="timeline-date">{{ post.published_at|date:"M d, Y" }}</div>
+            
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-primary">{{ post.category.name }}</span>
+                {% if post.is_featured %}
+                <span class="badge bg-warning text-dark">
+                    <i class="fas fa-star me-1"></i>Featured
+                </span>
+                {% endif %}
+            </div>
+            
+            <h3 class="serif-font mb-3">
+                <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                    {{ post.title }}
+                </a>
+            </h3>
+            
+            <p class="text-muted mb-3">
+                {{ post.excerpt|default:post.content|striptags|truncatewords:25 }}
+            </p>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="author-avatar" style="width: 28px; height: 28px; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">
+                        {{ post.author.username|first|upper }}
+                    </div>
+                    <small class="text-muted">{{ post.author.username }}</small>
+                </div>
+                
+                <div class="d-flex gap-3">
+                    <small class="text-muted">
+                        <i class="fas fa-eye me-1"></i>{{ post.views }}
+                    </small>
+                    <small class="text-muted">
+                        <i class="fas fa-comment me-1"></i>{{ post.comments.count }}
+                    </small>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Posts pagination" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                    <i class="fas fa-chevron-left me-1"></i>Previous
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                    Next<i class="fas fa-chevron-right ms-1"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// View switching functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const viewBtns = document.querySelectorAll('.view-btn');
+    const gridView = document.getElementById('grid-view');
+    const listView = document.getElementById('list-view');
+    const timelineView = document.getElementById('timeline-view');
+    
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const view = this.dataset.view;
+            
+            // Update button states
+            viewBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Show/hide views
+            gridView.style.display = view === 'grid' ? 'grid' : 'none';
+            listView.style.display = view === 'list' ? 'block' : 'none';
+            timelineView.style.display = view === 'timeline' ? 'block' : 'none';
+            
+            // Save preference to localStorage
+            localStorage.setItem('preferredView', view);
+            
+            // Re-trigger animations
+            const items = document.querySelectorAll('.fade-in');
+            items.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+        });
+    });
+    
+    // Load saved view preference
+    const savedView = localStorage.getItem('preferredView');
+    if (savedView) {
+        const savedBtn = document.querySelector(`[data-view="${savedView}"]`);
+        if (savedBtn) savedBtn.click();
+    }
+    
+    // Auto-submit form when filters change
+    const filterForm = document.getElementById('filter-form');
+    const filterSelects = filterForm.querySelectorAll('select');
+    
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            filterForm.submit();
+        });
+    });
+    
+    // Fade-in animation
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.fade-in').forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `all 0.6s ease ${index * 0.05}s`;
+        observer.observe(el);
+    });
+});
+</script>
+{% endblock %}

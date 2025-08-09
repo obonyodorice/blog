@@ -1,0 +1,456 @@
+{% extends '../base.html' %}
+
+{% block title %}Page Not Found - Personal Blog{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 0;
+    }
+    
+    .error-content {
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .error-number {
+        font-size: 10rem;
+        font-weight: 900;
+        color: var(--primary-color);
+        line-height: 0.8;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .error-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .error-message {
+        font-size: 1.25rem;
+        color: var(--text-gray);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 3rem;
+    }
+    
+    .error-illustration {
+        margin: 2rem 0;
+        opacity: 0.7;
+    }
+    
+    .search-section {
+        background-color: var(--background-white);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-top: 3rem;
+        box-shadow: var(--shadow-light);
+        border: 1px solid var(--border-light);
+    }
+    
+    .search-form {
+        max-width: 400px;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        border: 2px solid var(--border-light);
+        border-radius: 2rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-gray);
+    }
+    
+    .search-btn {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 1.5rem;
+        padding: 0.6rem 1.2rem;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .search-btn:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-50%) scale(1.05);
+    }
+    
+    .helpful-links {
+        background-color: var(--background-cream);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .links-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .link-item {
+        background-color: var(--background-white);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        text-decoration: none;
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        border: 2px solid var(--border-light);
+        text-align: center;
+    }
+    
+    .link-item:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-medium);
+        border-color: var(--primary-color);
+        color: var(--text-dark);
+    }
+    
+    .link-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .link-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .link-description {
+        font-size: 0.875rem;
+        color: var(--text-gray);
+    }
+    
+    .glitch-effect {
+        animation: glitch 2s infinite;
+    }
+    
+    @keyframes glitch {
+        0% { transform: translate(0); }
+        20% { transform: translate(-2px, 2px); }
+        40% { transform: translate(-2px, -2px); }
+        60% { transform: translate(2px, 2px); }
+        80% { transform: translate(2px, -2px); }
+        100% { transform: translate(0); }
+    }
+    
+    .particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: -1;
+    }
+    
+    .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        opacity: 0.3;
+        animation: particle-float 6s infinite ease-in-out;
+    }
+    
+    @keyframes particle-float {
+        0%, 100% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0;
+        }
+        10%, 90% {
+            opacity: 0.3;
+        }
+        50% {
+            transform: translateY(-100vh) rotate(360deg);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .error-number {
+            font-size: 6rem;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+        }
+        
+        .error-message {
+            font-size: 1.125rem;
+        }
+        
+        .error-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .links-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="error-container position-relative">
+        <!-- Animated particles background -->
+        <div class="particles">
+            <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+            <div class="particle" style="left: 20%; animation-delay: 0.5s;"></div>
+            <div class="particle" style="left: 30%; animation-delay: 1s;"></div>
+            <div class="particle" style="left: 40%; animation-delay: 1.5s;"></div>
+            <div class="particle" style="left: 50%; animation-delay: 2s;"></div>
+            <div class="particle" style="left: 60%; animation-delay: 2.5s;"></div>
+            <div class="particle" style="left: 70%; animation-delay: 3s;"></div>
+            <div class="particle" style="left: 80%; animation-delay: 3.5s;"></div>
+            <div class="particle" style="left: 90%; animation-delay: 4s;"></div>
+        </div>
+        
+        <div class="error-content">
+            <div class="error-number glitch-effect">404</div>
+            
+            <h1 class="error-title">Oops! Page Not Found</h1>
+            
+            <p class="error-message">
+                The page you're looking for seems to have wandered off into the digital wilderness. 
+                Don't worry though – let's get you back on track!
+            </p>
+            
+            <div class="error-illustration">
+                <i class="fas fa-compass fa-5x text-muted"></i>
+            </div>
+            
+            <div class="error-actions">
+                <a href="{% url 'myapp:home' %}" class="btn-primary-custom">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+                <button onclick="history.back()" class="btn-outline-custom">
+                    <i class="fas fa-arrow-left me-2"></i>Go Back
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Section -->
+    <div class="search-section">
+        <h3 class="serif-font text-center mb-3">
+            <i class="fas fa-search me-2"></i>Try Searching Instead
+        </h3>
+        <p class="text-center text-muted mb-4">Maybe we can help you find what you're looking for</p>
+        
+        <form method="get" action="{% url 'myapp:search' %}" class="search-form">
+            <div class="position-relative">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                    type="text" 
+                    name="q" 
+                    placeholder="Search for posts, topics, or keywords..." 
+                    class="search-input"
+                    autocomplete="off"
+                >
+                <button type="submit" class="search-btn">
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Helpful Links -->
+    <div class="helpful-links">
+        <h3 class="serif-font text-center mb-3">
+            <i class="fas fa-compass me-2"></i>Explore Our Content
+        </h3>
+        <div class="links-grid">
+            <a href="{% url 'myapp:home' %}" class="link-item">
+                <i class="fas fa-home link-icon"></i>
+                <div class="link-title">Homepage</div>
+                <div class="link-description">Latest posts and featured content</div>
+            </a>
+            
+            <a href="{% url 'myapp:home' %}#about" class="link-item">
+                <i class="fas fa-user link-icon"></i>
+                <div class="link-title">About</div>
+                <div class="link-description">Learn more about this blog</div>
+            </a>
+            
+            <a href="{% url 'myapp:home' %}#contact" class="link-item">
+                <i class="fas fa-envelope link-icon"></i>
+                <div class="link-title">Contact</div>
+                <div class="link-description">Get in touch with us</div>
+            </a>
+            
+            {% if user.is_authenticated %}
+            <a href="{% url 'myapp:post_create' %}" class="link-item">
+                <i class="fas fa-edit link-icon"></i>
+                <div class="link-title">Write</div>
+                <div class="link-description">Create a new blog post</div>
+            </a>
+            {% else %}
+            <a href="{% url 'members:login' %}" class="link-item">
+                <i class="fas fa-sign-in-alt link-icon"></i>
+                <div class="link-title">Login</div>
+                <div class="link-description">Access your account</div>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Fun Fact -->
+    <div class="text-center mt-4">
+        <div class="card-modern d-inline-block p-3">
+            <p class="mb-0 text-muted">
+                <i class="fas fa-lightbulb me-2 text-warning"></i>
+                <strong>Did you know?</strong> The first 404 error was discovered at CERN in 1992, 
+                and the term comes from the HTTP status code for "Not Found".
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add some interactive effects
+document.addEventListener('DOMContentLoaded', function() {
+    // Glitch effect on 404 number
+    const errorNumber = document.querySelector('.error-number');
+    let glitchInterval;
+    
+    errorNumber.addEventListener('mouseenter', function() {
+        glitchInterval = setInterval(() => {
+            this.style.textShadow = `
+                ${Math.random() * 10 - 5}px ${Math.random() * 10 - 5}px 0 #ff0000,
+                ${Math.random() * 10 - 5}px ${Math.random() * 10 - 5}px 0 #00ff00,
+                ${Math.random() * 10 - 5}px ${Math.random() * 10 - 5}px 0 #0000ff
+            `;
+        }, 50);
+    });
+    
+    errorNumber.addEventListener('mouseleave', function() {
+        clearInterval(glitchInterval);
+        this.style.textShadow = '0 4px 8px rgba(37, 99, 235, 0.3)';
+    });
+    
+    // Particle animation
+    const particles = document.querySelectorAll('.particle');
+    particles.forEach((particle, index) => {
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 6 + 's';
+        particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
+    });
+    
+    // Search input focus enhancement
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+        
+        searchInput.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+    }
+    
+    // Link hover effects
+    const linkItems = document.querySelectorAll('.link-item');
+    linkItems.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            const icon = this.querySelector('.link-icon');
+            icon.style.transform = 'scale(1.2) rotate(10deg)';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            const icon = this.querySelector('.link-icon');
+            icon.style.transform = 'scale(1) rotate(0deg)';
+        });
+    });
+});
+
+// Konami Code Easter Egg
+let konamiCode = [];
+const konamiSequence = [
+    'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+    'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
+    'KeyB', 'KeyA'
+];
+
+document.addEventListener('keydown', function(e) {
+    konamiCode.push(e.code);
+    if (konamiCode.length > konamiSequence.length) {
+        konamiCode.shift();
+    }
+    
+    if (JSON.stringify(konamiCode) === JSON.stringify(konamiSequence)) {
+        // Easter egg activated!
+        document.body.style.animation = 'rainbow 2s infinite';
+        setTimeout(() => {
+            document.body.style.animation = '';
+            alert('🎉 Konami Code activated! You found the easter egg!');
+        }, 2000);
+    }
+});
+
+// Rainbow animation for easter egg
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes rainbow {
+        0% { filter: hue-rotate(0deg); }
+        100% { filter: hue-rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

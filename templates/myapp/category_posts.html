@@ -1,0 +1,439 @@
+{% extends '../base.html' %}
+
+{% block title %}{{ category.name }} - Personal Blog{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        border-radius: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .category-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)" /></svg>');
+        opacity: 0.3;
+    }
+    
+    .category-header .container {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .category-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 1rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .post-card {
+        background: var(--background-white);
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: var(--shadow-light);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+    }
+    
+    .post-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-large);
+    }
+    
+    .post-card-image {
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .post-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .post-card:hover .post-card-image img {
+        transform: scale(1.05);
+    }
+    
+    .post-card-placeholder {
+        height: 200px;
+        background: linear-gradient(45deg, var(--background-cream) 0%, #f1f5f9 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-gray);
+        font-size: 3rem;
+    }
+    
+    .post-card-content {
+        padding: 1.5rem;
+    }
+    
+    .post-card-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+    }
+    
+    .post-card-title a {
+        color: var(--text-dark);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .post-card-title a:hover {
+        color: var(--primary-color);
+    }
+    
+    .post-card-excerpt {
+        color: var(--text-gray);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .post-card-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: var(--text-gray);
+        border-top: 1px solid var(--border-light);
+        padding-top: 1rem;
+    }
+    
+    .post-card-author {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .author-avatar {
+        width: 32px;
+        height: 32px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .post-card-stats {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .filter-section {
+        background-color: var(--background-white);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-light);
+    }
+    
+    .filter-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--border-light);
+        background: transparent;
+        border-radius: 0.5rem;
+        color: var(--text-gray);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .filter-btn:hover,
+    .filter-btn.active {
+        border-color: var(--primary-color);
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .sort-dropdown {
+        margin-left: auto;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background-color: var(--background-white);
+        border-radius: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .empty-icon {
+        font-size: 4rem;
+        color: var(--text-gray);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+    }
+    
+    .pagination .page-link {
+        border-radius: 0.5rem;
+        margin: 0 0.25rem;
+        border: 2px solid var(--border-light);
+        color: var(--text-dark);
+        padding: 0.75rem 1rem;
+    }
+    
+    .pagination .page-link:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    @media (max-width: 768px) {
+        .posts-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        .filter-buttons {
+            justify-content: center;
+        }
+        
+        .sort-dropdown {
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Category Header -->
+    <div class="category-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <div class="category-icon">
+                        <i class="fas fa-{{ category.icon|default:'folder' }}"></i>
+                    </div>
+                    <h1 class="serif-font mb-3">{{ category.name }}</h1>
+                    {% if category.description %}
+                        <p class="lead mb-3">{{ category.description }}</p>
+                    {% endif %}
+                    <div class="d-flex justify-content-center align-items-center gap-3">
+                        <span><i class="fas fa-newspaper me-2"></i>{{ posts.count }} Posts</span>
+                        {% if category.created_at %}
+                            <span><i class="fas fa-calendar me-2"></i>Since {{ category.created_at|date:"Y" }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-buttons">
+            <span class="fw-bold text-muted">Sort by:</span>
+            <a href="?sort=latest" class="filter-btn {% if request.GET.sort == 'latest' or not request.GET.sort %}active{% endif %}">
+                <i class="fas fa-clock me-1"></i>Latest
+            </a>
+            <a href="?sort=popular" class="filter-btn {% if request.GET.sort == 'popular' %}active{% endif %}">
+                <i class="fas fa-fire me-1"></i>Popular
+            </a>
+            <a href="?sort=views" class="filter-btn {% if request.GET.sort == 'views' %}active{% endif %}">
+                <i class="fas fa-eye me-1"></i>Most Viewed
+            </a>
+            <a href="?sort=oldest" class="filter-btn {% if request.GET.sort == 'oldest' %}active{% endif %}">
+                <i class="fas fa-history me-1"></i>Oldest First
+            </a>
+        </div>
+    </div>
+    
+    <!-- Posts Grid -->
+    {% if posts %}
+        <div class="posts-grid">
+            {% for post in posts %}
+                <article class="post-card fade-in">
+                    <div class="post-card-image">
+                        {% if post.featured_image %}
+                            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                        {% else %}
+                            <div class="post-card-placeholder">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="post-card-content">
+                        <h3 class="post-card-title">
+                            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                        </h3>
+                        
+                        <p class="post-card-excerpt">
+                            {{ post.excerpt|default:post.content|striptags|truncatewords:20 }}
+                        </p>
+                        
+                        <div class="post-card-meta">
+                            <div class="post-card-author">
+                                <div class="author-avatar">
+                                    {{ post.author.username|first|upper }}
+                                </div>
+                                <span>{{ post.author.get_full_name|default:post.author.username }}</span>
+                            </div>
+                            
+                            <div class="post-card-stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-eye"></i>
+                                    <span>{{ post.views }}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>{{ post.published_at|date:"M d" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <div class="pagination-wrapper">
+                <nav aria-label="Category posts pagination">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                                    <i class="fas fa-chevron-left me-1"></i>Previous
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                                    Next<i class="fas fa-chevron-right ms-1"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <h3 class="serif-font mb-3">No Posts Yet</h3>
+            <p class="text-muted mb-4">This category doesn't have any published posts yet. Check back soon for new content!</p>
+            <a href="{% url 'myapp:home' %}" class="btn-primary-custom">
+                <i class="fas fa-home me-2"></i>Browse All Posts
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Fade-in animation for posts
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.fade-in').forEach((el, index) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = `all 0.6s ease ${index * 0.1}s`;
+    observer.observe(el);
+});
+
+// Smooth scroll for pagination
+document.querySelectorAll('.pagination a').forEach(link => {
+    link.addEventListener('click', function(e) {
+        // Let the page load normally, then scroll to top
+        setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 100);
+    });
+});
+</script>
+{% endblock %}
