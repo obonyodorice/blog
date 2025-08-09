@@ -1,0 +1,488 @@
+{% extends '../base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit Post{% else %}Create New Post{% endif %} - Personal Blog
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-header {
+        background: linear-gradient(135deg, var(--background-white) 0%, var(--background-cream) 100%);
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+        border-radius: 1rem;
+    }
+    
+    .form-container {
+        background-color: var(--background-white);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: var(--shadow-light);
+        margin-bottom: 3rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid var(--border-light);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    }
+    
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .preview-section {
+        background-color: var(--background-cream);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 2px dashed var(--border-light);
+        text-align: center;
+    }
+    
+    .image-preview {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .btn-group-custom {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-custom {
+        padding: 0.75rem 2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: 2px solid;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-primary-custom {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    
+    .btn-primary-custom:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-secondary-custom {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: white;
+    }
+    
+    .btn-secondary-custom:hover {
+        background-color: #475569;
+        border-color: #475569;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-outline-custom {
+        background-color: transparent;
+        border-color: var(--text-gray);
+        color: var(--text-gray);
+    }
+    
+    .btn-outline-custom:hover {
+        background-color: var(--text-gray);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .form-help-text {
+        font-size: 0.875rem;
+        color: var(--text-gray);
+        margin-top: 0.25rem;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .status-draft {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-published {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .featured-toggle {
+        background-color: var(--background-cream);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 2px solid var(--border-light);
+        margin-bottom: 1rem;
+    }
+    
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+    
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+        background-color: var(--primary-color);
+    }
+    
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+    
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 1.5rem;
+        }
+        
+        .btn-group-custom {
+            flex-direction: column;
+        }
+        
+        .btn-custom {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Form Header -->
+    <div class="form-header">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="serif-font mb-3">
+                    {% if form.instance.pk %}
+                        <i class="fas fa-edit me-2"></i>Edit Post
+                    {% else %}
+                        <i class="fas fa-plus-circle me-2"></i>Create New Post
+                    {% endif %}
+                </h1>
+                <p class="lead text-muted">
+                    {% if form.instance.pk %}
+                        Update your blog post and share your thoughts with the world.
+                    {% else %}
+                        Share your story, insights, and creativity with your audience.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <form method="post" enctype="multipart/form-data" id="post-form">
+                {% csrf_token %}
+                
+                <div class="form-container">
+                    <!-- Title -->
+                    <div class="form-group">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="fas fa-heading me-2"></i>Post Title *
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            {% for error in form.title.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-help-text">Create a compelling title that captures your reader's attention</div>
+                    </div>
+                    
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label for="{{ form.category.id_for_label }}" class="form-label">
+                            <i class="fas fa-folder me-2"></i>Category *
+                        </label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            {% for error in form.category.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-help-text">Choose the most relevant category for your post</div>
+                    </div>
+                    
+                    <!-- Excerpt -->
+                    <div class="form-group">
+                        <label for="{{ form.excerpt.id_for_label }}" class="form-label">
+                            <i class="fas fa-file-text me-2"></i>Excerpt
+                        </label>
+                        {{ form.excerpt }}
+                        {% if form.excerpt.errors %}
+                            {% for error in form.excerpt.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-help-text">A brief summary that appears in post previews (optional)</div>
+                    </div>
+                    
+                    <!-- Featured Image -->
+                    <div class="form-group">
+                        <label for="{{ form.featured_image.id_for_label }}" class="form-label">
+                            <i class="fas fa-image me-2"></i>Featured Image
+                        </label>
+                        <div class="preview-section">
+                            {% if form.instance.featured_image %}
+                                <img src="{{ form.instance.featured_image.url }}" alt="Current featured image" class="image-preview" id="image-preview">
+                            {% else %}
+                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-2">Upload a featured image for your post</p>
+                                <img id="image-preview" class="image-preview d-none">
+                            {% endif %}
+                        </div>
+                        {{ form.featured_image }}
+                        {% if form.featured_image.errors %}
+                            {% for error in form.featured_image.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-help-text">Recommended size: 1200x630 pixels. Supports JPG, PNG, GIF formats.</div>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="form-group">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            <i class="fas fa-paragraph me-2"></i>Content *
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            {% for error in form.content.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-help-text">Write your full blog post content here. HTML is supported.</div>
+                    </div>
+                    
+                    <!-- Tags -->
+                    <div class="form-group">
+                        <label for="{{ form.tags.id_for_label }}" class="form-label">
+                            <i class="fas fa-tags me-2"></i>Tags
+                        </label>
+                        {{ form.tags }}
+                        {% if form.tags.errors %}
+                            {% for error in form.tags.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-help-text">Add relevant tags separated by commas (e.g., technology, programming, web development)</div>
+                    </div>
+                    
+                    <!-- Publishing Options -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.status.id_for_label }}" class="form-label">
+                                    <i class="fas fa-eye me-2"></i>Status
+                                </label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                    {% for error in form.status.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="form-help-text">Choose whether to publish immediately or save as draft</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="featured-toggle">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <label for="{{ form.is_featured.id_for_label }}" class="form-label mb-1">
+                                            <i class="fas fa-star me-2"></i>Featured Post
+                                        </label>
+                                        <div class="form-help-text mb-0">Show this post prominently on the homepage</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        {{ form.is_featured }}
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="btn-group-custom">
+                    <button type="submit" name="action" value="save" class="btn-custom btn-primary-custom">
+                        <i class="fas fa-save"></i>
+                        {% if form.instance.pk %}Update Post{% else %}Save Post{% endif %}
+                    </button>
+                    
+                    {% if not form.instance.pk %}
+                    <button type="submit" name="action" value="save_draft" class="btn-custom btn-secondary-custom">
+                        <i class="fas fa-file-alt"></i>
+                        Save as Draft
+                    </button>
+                    {% endif %}
+                    
+                    <a href="{% url 'myapp:home' %}" class="btn-custom btn-outline-custom">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image preview functionality
+document.getElementById('{{ form.featured_image.id_for_label }}').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('image-preview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Auto-save draft functionality (optional)
+let autoSaveTimeout;
+const formInputs = document.querySelectorAll('#post-form input, #post-form textarea, #post-form select');
+
+formInputs.forEach(input => {
+    input.addEventListener('input', function() {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(function() {
+            // Auto-save logic can be implemented here
+            console.log('Auto-saving draft...');
+        }, 30000); // Save after 30 seconds of inactivity
+    });
+});
+
+// Form validation
+document.getElementById('post-form').addEventListener('submit', function(e) {
+    const title = document.getElementById('{{ form.title.id_for_label }}');
+    const content = document.getElementById('{{ form.content.id_for_label }}');
+    
+    if (!title.value.trim()) {
+        e.preventDefault();
+        title.classList.add('is-invalid');
+        title.focus();
+        return;
+    }
+    
+    if (!content.value.trim()) {
+        e.preventDefault();
+        content.classList.add('is-invalid');
+        content.focus();
+        return;
+    }
+});
+
+// Remove validation errors on input
+formInputs.forEach(input => {
+    input.addEventListener('input', function() {
+        this.classList.remove('is-invalid');
+    });
+});
+
+// Character counter for title
+const titleInput = document.getElementById('{{ form.title.id_for_label }}');
+if (titleInput) {
+    const maxLength = 200;
+    const counter = document.createElement('div');
+    counter.className = 'form-help-text';
+    counter.style.textAlign = 'right';
+    titleInput.parentNode.appendChild(counter);
+    
+    function updateCounter() {
+        const remaining = maxLength - titleInput.value.length;
+        counter.textContent = `${remaining} characters remaining`;
+        counter.style.color = remaining < 20 ? '#dc3545' : 'var(--text-gray)';
+    }
+    
+    titleInput.addEventListener('input', updateCounter);
+    updateCounter();
+}
+</script>
+{% endblock %}
