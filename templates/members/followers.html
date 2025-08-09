@@ -1,0 +1,564 @@
+{% extends '../base.html' %}
+
+{% block title %}Followers - Personal Blog{% endblock %}
+
+{% block content %}
+<div class="hero-section" style="padding: 2rem 0;">
+    <div class="container">
+        <!-- Header Section -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h1 class="serif-font mb-3" style="font-size: 2.5rem; color: var(--text-dark);">
+                    <i class="fas fa-users text-primary me-3"></i>Followers
+                </h1>
+                <p class="lead text-muted">People who are following {{ request.user.first_name|default:"you" }}</p>
+                
+                <div class="d-flex justify-content-center gap-4 mt-4">
+                    <div class="stat-item-inline">
+                        <span class="stat-number-small">{{ followers.count }}</span>
+                        <span class="stat-label-small">Followers</span>
+                    </div>
+                    <div class="stat-item-inline">
+                        <span class="stat-number-small">{{ request.user.following.count }}</span>
+                        <span class="stat-label-small">Following</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                <div class="card-modern">
+                    <div class="card-body" style="padding: 1.5rem;">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="search-box position-relative">
+                                    <input type="text" 
+                                           id="followerSearch" 
+                                           class="form-control form-control-lg ps-5" 
+                                           placeholder="Search followers..."
+                                           style="background-color: var(--background-cream); border: 2px solid var(--border-light);">
+                                    <i class="fas fa-search position-absolute text-muted" 
+                                       style="top: 50%; left: 1rem; transform: translateY(-50%);"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mt-3 mt-md-0">
+                                <div class="d-flex justify-content-md-end gap-2">
+                                    <select class="form-select" id="sortFilter" style="max-width: 200px;">
+                                        <option value="newest">Newest First</option>
+                                        <option value="oldest">Oldest First</option>
+                                        <option value="alphabetical">A-Z</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" onclick="resetFilters()">
+                                        <i class="fas fa-refresh"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Followers Grid -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div id="followersContainer">
+                    {% if followers %}
+                        <div class="row g-4" id="followersGrid">
+                            {% for follower_relation in followers %}
+                                <div class="col-lg-4 col-md-6 follower-card" 
+                                     data-name="{{ follower_relation.user.first_name }} {{ follower_relation.user.last_name }}"
+                                     data-username="{{ follower_relation.user.username }}"
+                                     data-date="{{ follower_relation.created_at|date:'Y-m-d' }}">
+                                    <div class="card-modern h-100 follower-item">
+                                        <div class="card-body text-center" style="padding: 2rem;">
+                                            <!-- Profile Picture -->
+                                            <div class="profile-picture-container mb-3">
+                                                {% if follower_relation.user.profile_picture %}
+                                                    <img src="{{ follower_relation.user.profile_picture.url }}" 
+                                                         alt="{{ follower_relation.user.username }}" 
+                                                         class="rounded-circle shadow-lg profile-pic-hover"
+                                                         style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--background-white);">
+                                                {% else %}
+                                                    <div class="rounded-circle shadow-lg d-flex align-items-center justify-content-center mx-auto profile-pic-hover"
+                                                         style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; font-size: 1.5rem; border: 3px solid var(--background-white);">
+                                                        {{ follower_relation.user.first_name.0|upper }}{{ follower_relation.user.last_name.0|upper }}
+                                                    </div>
+                                                {% endif %}
+                                                
+                                                <!-- Online Status (Optional) -->
+                                                <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-success" 
+                                                      style="width: 18px; height: 18px; margin-bottom: 10px; margin-right: 10px;">
+                                                </span>
+                                            </div>
+                                            
+                                            <!-- User Info -->
+                                            <h5 class="serif-font mb-2">
+                                                <a href="{% url 'members:profile' follower_relation.user.username %}" 
+                                                   class="text-decoration-none"
+                                                   style="color: var(--text-dark);">
+                                                    {{ follower_relation.user.first_name }} {{ follower_relation.user.last_name }}
+                                                </a>
+                                            </h5>
+                                            
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-at me-1"></i>{{ follower_relation.user.username }}
+                                            </p>
+                                            
+                                            {% if follower_relation.user.bio %}
+                                                <p class="text-muted small mb-3" style="font-size: 0.875rem;">
+                                                    {{ follower_relation.user.bio|truncatewords:12 }}
+                                                </p>
+                                            {% endif %}
+                                            
+                                            <!-- User Stats -->
+                                            <div class="d-flex justify-content-center gap-3 mb-3 small text-muted">
+                                                <span>
+                                                    <i class="fas fa-newspaper me-1"></i>
+                                                    {{ follower_relation.user.post_set.count }} posts
+                                                </span>
+                                                <span>
+                                                    <i class="fas fa-users me-1"></i>
+                                                    {{ follower_relation.user.followers.count }} followers
+                                                </span>
+                                            </div>
+                                            
+                                            <!-- Action Buttons -->
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a href="{% url 'members:profile' follower_relation.user.username %}" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-user me-1"></i>View Profile
+                                                </a>
+                                                
+                                                {% if follower_relation.user != request.user %}
+                                                    <button class="btn btn-sm btn-primary follow-btn" 
+                                                            onclick="followUser({{ follower_relation.user.id }}, this)">
+                                                        <i class="fas fa-user-plus me-1"></i>Follow Back
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <!-- Follow Date -->
+                                            <small class="text-muted d-block mt-3">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Following since {{ follower_relation.created_at|date:"M d, Y" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if is_paginated %}
+                            <div class="d-flex justify-content-center mt-5">
+                                <nav aria-label="Followers pagination">
+                                    <ul class="pagination pagination-lg">
+                                        {% if page_obj.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=1" aria-label="First">
+                                                    <i class="fas fa-angle-double-left"></i>
+                                                </a>
+                                            </li>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                                    <i class="fas fa-angle-left"></i>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        
+                                        {% for num in page_obj.paginator.page_range %}
+                                            {% if page_obj.number == num %}
+                                                <li class="page-item active">
+                                                    <span class="page-link">{{ num }}</span>
+                                                </li>
+                                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        {% if page_obj.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                                    <i class="fas fa-angle-right"></i>
+                                                </a>
+                                            </li>
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                                    <i class="fas fa-angle-double-right"></i>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        {% endif %}
+                        
+                    {% else %}
+                        <!-- Empty State -->
+                        <div class="text-center py-5">
+                            <div class="empty-state">
+                                <i class="fas fa-user-friends text-muted mb-4" style="font-size: 5rem; opacity: 0.5;"></i>
+                                <h3 class="serif-font text-muted mb-3">No Followers Yet</h3>
+                                <p class="text-muted mb-4">
+                                    When people start following you, they'll appear here.<br>
+                                    Start creating amazing content to attract followers!
+                                </p>
+                                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                                    <a href="{% url 'myapp:post_create' %}" class="btn-primary-custom">
+                                        <i class="fas fa-plus me-2"></i>Create Your First Post
+                                    </a>
+                                    <a href="{% url 'myapp:home' %}" class="btn-outline-custom">
+                                        <i class="fas fa-home me-2"></i>Back to Home
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Animation -->
+<div id="loadingSpinner" class="d-none">
+    <div class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-item-inline {
+        text-align: center;
+        padding: 1rem;
+        background-color: var(--background-white);
+        border-radius: 0.75rem;
+        box-shadow: var(--shadow-light);
+    }
+    
+    .stat-number-small {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label-small {
+        font-size: 0.875rem;
+        color: var(--text-gray);
+        font-weight: 500;
+    }
+    
+    .follower-item {
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .follower-item:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-large);
+    }
+    
+    .profile-pic-hover {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .profile-pic-hover:hover {
+        transform: scale(1.1);
+    }
+    
+    .search-box .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        background-color: var(--background-white);
+    }
+    
+    .pagination .page-link {
+        color: var(--primary-color);
+        border: 2px solid var(--border-light);
+        margin: 0 0.25rem;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    
+    .pagination .page-link:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    
+    .empty-state {
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .follower-card {
+        animation: slideUp 0.6s ease-out;
+    }
+    
+    .follower-card:nth-child(1) { animation-delay: 0.1s; }
+    .follower-card:nth-child(2) { animation-delay: 0.2s; }
+    .follower-card:nth-child(3) { animation-delay: 0.3s; }
+    .follower-card:nth-child(4) { animation-delay: 0.4s; }
+    .follower-card:nth-child(5) { animation-delay: 0.5s; }
+    .follower-card:nth-child(6) { animation-delay: 0.6s; }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search functionality
+    document.getElementById('followerSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const followerCards = document.querySelectorAll('.follower-card');
+        
+        followerCards.forEach(card => {
+            const name = card.dataset.name.toLowerCase();
+            const username = card.dataset.username.toLowerCase();
+            
+            if (name.includes(searchTerm) || username.includes(searchTerm)) {
+                card.style.display = 'block';
+                card.style.animation = 'fadeIn 0.3s ease-out';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        updateEmptyState();
+    });
+    
+    // Sort functionality
+    document.getElementById('sortFilter').addEventListener('change', function(e) {
+        const sortType = e.target.value;
+        const container = document.getElementById('followersGrid');
+        const cards = Array.from(document.querySelectorAll('.follower-card'));
+        
+        cards.sort((a, b) => {
+            switch(sortType) {
+                case 'newest':
+                    return new Date(b.dataset.date) - new Date(a.dataset.date);
+                case 'oldest':
+                    return new Date(a.dataset.date) - new Date(b.dataset.date);
+                case 'alphabetical':
+                    return a.dataset.name.localeCompare(b.dataset.name);
+                default:
+                    return 0;
+            }
+        });
+        
+        // Reorder cards
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            container.appendChild(card);
+        });
+    });
+    
+    // Follow/Unfollow functionality
+    function followUser(userId, buttonElement) {
+        const originalContent = buttonElement.innerHTML;
+        buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading...';
+        buttonElement.disabled = true;
+        
+        fetch("{% url 'members:follow_unfollow' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `user_id=${userId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                buttonElement.innerHTML = originalContent;
+            } else {
+                buttonElement.innerHTML = data.is_following ? 
+                    '<i class="fas fa-user-minus me-1"></i>Unfollow' : 
+                    '<i class="fas fa-user-plus me-1"></i>Follow Back';
+                buttonElement.className = data.is_following ? 
+                    'btn btn-sm btn-outline-danger follow-btn' : 
+                    'btn btn-sm btn-primary follow-btn';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+            buttonElement.innerHTML = originalContent;
+        })
+        .finally(() => {
+            buttonElement.disabled = false;
+        });
+    }
+    
+    // Reset filters
+    function resetFilters() {
+        document.getElementById('followerSearch').value = '';
+        document.getElementById('sortFilter').value = 'newest';
+        
+        const followerCards = document.querySelectorAll('.follower-card');
+        followerCards.forEach(card => {
+            card.style.display = 'block';
+        });
+        
+        // Re-sort to newest first
+        document.getElementById('sortFilter').dispatchEvent(new Event('change'));
+        updateEmptyState();
+    }
+    
+    // Update empty state visibility
+    function updateEmptyState() {
+        const visibleCards = document.querySelectorAll('.follower-card[style*="block"], .follower-card:not([style*="none"])');
+        const emptyState = document.querySelector('.empty-state');
+        const followersGrid = document.getElementById('followersGrid');
+        
+        if (visibleCards.length === 0 && followersGrid) {
+            if (!document.getElementById('searchEmptyState')) {
+                const searchEmpty = document.createElement('div');
+                searchEmpty.id = 'searchEmptyState';
+                searchEmpty.className = 'text-center py-5';
+                searchEmpty.innerHTML = `
+                    <i class="fas fa-search text-muted mb-4" style="font-size: 4rem; opacity: 0.5;"></i>
+                    <h4 class="text-muted mb-3">No followers found</h4>
+                    <p class="text-muted">Try adjusting your search terms or filters.</p>
+                    <button class="btn-outline-custom" onclick="resetFilters()">
+                        <i class="fas fa-refresh me-2"></i>Clear Filters
+                    </button>
+                `;
+                followersGrid.parentNode.appendChild(searchEmpty);
+            }
+            document.getElementById('searchEmptyState').style.display = 'block';
+        } else {
+            const searchEmpty = document.getElementById('searchEmptyState');
+            if (searchEmpty) {
+                searchEmpty.style.display = 'none';
+            }
+        }
+    }
+    
+    // Infinite scroll (if more pages available)
+    let isLoading = false;
+    let hasNextPage = {{ page_obj.has_next|yesno:"true,false" }};
+    let currentPage = {{ page_obj.number }};
+    
+    function loadMoreFollowers() {
+        if (isLoading || !hasNextPage) return;
+        
+        isLoading = true;
+        document.getElementById('loadingSpinner').classList.remove('d-none');
+        
+        // Simulate loading more followers (replace with actual AJAX call)
+        setTimeout(() => {
+            document.getElementById('loadingSpinner').classList.add('d-none');
+            isLoading = false;
+            // hasNextPage = false; // Set based on response
+        }, 1000);
+    }
+    
+    // Scroll event listener for infinite scroll
+    window.addEventListener('scroll', () => {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+            loadMoreFollowers();
+        }
+    });
+    
+    // Profile picture click to enlarge
+    document.querySelectorAll('.profile-pic-hover').forEach(img => {
+        img.addEventListener('click', function() {
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.id = 'imageModal';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="${this.src}" class="img-fluid rounded-circle" alt="Profile Picture" style="max-width: 300px;">
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
+            
+            modal.addEventListener('hidden.bs.modal', () => {
+                document.body.removeChild(modal);
+            });
+        });
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K to focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            document.getElementById('followerSearch').focus();
+        }
+        
+        // Escape to clear search
+        if (e.key === 'Escape') {
+            document.getElementById('followerSearch').value = '';
+            document.getElementById('followerSearch').dispatchEvent(new Event('input'));
+        }
+    });
+    
+    // Add search keyboard hint
+    document.getElementById('followerSearch').setAttribute('title', 'Press Ctrl+K to focus, Escape to clear');
+    
+    // Smooth scroll to top button
+    const scrollToTopBtn = document.createElement('button');
+    scrollToTopBtn.className = 'btn btn-primary position-fixed';
+    scrollToTopBtn.style.cssText = 'bottom: 2rem; right: 2rem; z-index: 1000; border-radius: 50%; width: 50px; height: 50px; display: none;';
+    scrollToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    scrollToTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.appendChild(scrollToTopBtn);
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            scrollToTopBtn.style.display = 'block';
+        } else {
+            scrollToTopBtn.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}
