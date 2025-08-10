@@ -400,10 +400,13 @@
                         <a class="nav-link" href="{% url 'myapp:home' %}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#about">About</a>
+                        <a class="nav-link" href="{% url 'myapp:about' %}">About</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#contact">Contact</a>
+                        <a class="nav-link" href="{% url 'myapp:all_posts' %}">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'myapp:contact' %}">Contact</a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item">
@@ -455,16 +458,14 @@
     </main>
 
     <!-- Footer -->
-    <footer id="contact" class="footer">
+    <footer id="contact-info" class="footer">
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4">
                     <h5>Personal Blog</h5>
                     <p>A place for sharing thoughts, experiences, and insights. Join our community of readers and writers.</p>
                     <div class="social-links">
-                      
                         <a href="https://www.linkedin.com/in/dorice-obonyo/" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                        {% comment %} <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a> {% endcomment %}
                         <a href="https://github.com/obonyodorice/" aria-label="GitHub"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
@@ -472,8 +473,9 @@
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="{% url 'myapp:home' %}">Home</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="{% url 'myapp:about' %}">About</a></li>
+                        <li><a href="{% url 'myapp:all_posts' %}">Blog</a></li>
+                        <li><a href="{% url 'myapp:contact' %}">Contact</a></li>
                         {% if user.is_authenticated %}
                         <li><a href="{% url 'myapp:post_create' %}">Write</a></li>
                         {% endif %}
@@ -551,8 +553,13 @@
         setTimeout(() => {
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
+                if (window.bootstrap && window.bootstrap.Alert) {
+                    const bsAlert = new window.bootstrap.Alert(alert);
+                    bsAlert.close();
+                } else {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                }
             });
         }, 5000);
 
