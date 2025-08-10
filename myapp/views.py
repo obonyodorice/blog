@@ -18,7 +18,7 @@ from datetime import datetime
 class HomeView(ListView):
     """Homepage with featured and recent posts"""
     model = Post
-    template_name = 'home.html'  # Fixed template path
+    template_name = 'myapp/../home.html'  # Updated template path
     context_object_name = 'posts'
     paginate_by = 6
     
@@ -49,15 +49,12 @@ class HomeView(ListView):
             post_count=Count('post', filter=Q(post__status='published'))
         ).filter(post_count__gt=0)
         
-        # ADD THESE STATISTICS - This is what was missing!
+        # Statistics for the homepage
         context['total_posts'] = Post.objects.filter(status='published').count()
-        
         context['total_categories'] = Category.objects.count()
-        
         context['total_views'] = Post.objects.filter(status='published').aggregate(
             total=Sum('views')
         )['total'] or 0
-        
         context['total_subscribers'] = Newsletter.objects.filter(is_active=True).count()
         
         return context
@@ -299,127 +296,162 @@ def custom_404_view(request, exception=None):
     """Custom 404 error page"""
     return render(request, '404.html', status=404)
 
-# You might also want these utility views:
+# # You might also want these utility views:
 
-class PostsByYearView(ListView):
-    """Posts by year archive"""
-    model = Post
-    template_name = 'myapp/posts_by_year.html'
-    context_object_name = 'posts'
-    paginate_by = 10
+# class PostsByYearView(ListView):
+#     """Posts by year archive"""
+#     model = Post
+#     template_name = 'myapp/posts_by_year.html'
+#     context_object_name = 'posts'
+#     paginate_by = 10
     
-    def get_queryset(self):
-        year = self.kwargs['year']
-        return Post.objects.filter(
-            status='published',
-            published_at__year=year
-        ).select_related('author', 'category').order_by('-published_at')
+#     def get_queryset(self):
+#         year = self.kwargs['year']
+#         return Post.objects.filter(
+#             status='published',
+#             published_at__year=year
+#         ).select_related('author', 'category').order_by('-published_at')
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['year'] = self.kwargs['year']
-        return context
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['year'] = self.kwargs['year']
+#         return context
 
-class PostsByMonthView(ListView):
-    """Posts by month archive"""
-    model = Post
-    template_name = 'myapp/posts_by_month.html'
-    context_object_name = 'posts'
-    paginate_by = 10
+# class PostsByMonthView(ListView):
+#     """Posts by month archive"""
+#     model = Post
+#     template_name = 'myapp/posts_by_month.html'
+#     context_object_name = 'posts'
+#     paginate_by = 10
     
-    def get_queryset(self):
-        year = self.kwargs['year']
-        month = self.kwargs['month']
-        return Post.objects.filter(
-            status='published',
-            published_at__year=year,
-            published_at__month=month
-        ).select_related('author', 'category').order_by('-published_at')
+#     def get_queryset(self):
+#         year = self.kwargs['year']
+#         month = self.kwargs['month']
+#         return Post.objects.filter(
+#             status='published',
+#             published_at__year=year,
+#             published_at__month=month
+#         ).select_related('author', 'category').order_by('-published_at')
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['year'] = self.kwargs['year']
-        context['month'] = self.kwargs['month']
-        context['month_name'] = datetime(int(self.kwargs['year']), int(self.kwargs['month']), 1).strftime('%B')
-        return context
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['year'] = self.kwargs['year']
+#         context['month'] = self.kwargs['month']
+#         context['month_name'] = datetime(int(self.kwargs['year']), int(self.kwargs['month']), 1).strftime('%B')
+#         return context
 
-# AJAX views for better UX
-@require_POST
-def load_more_posts(request):
-    """AJAX view to load more posts (infinite scroll)"""
-    page = request.POST.get('page', 2)
-    category = request.POST.get('category', '')
-    sort = request.POST.get('sort', 'latest')
+# # AJAX views for better UX
+# @require_POST
+# def load_more_posts(request):
+#     """AJAX view to load more posts (infinite scroll)"""
+#     page = request.POST.get('page', 2)
+#     category = request.POST.get('category', '')
+#     sort = request.POST.get('sort', 'latest')
     
-    posts = Post.objects.filter(status='published')
+#     posts = Post.objects.filter(status='published')
     
-    if category:
-        posts = posts.filter(category__slug=category)
+#     if category:
+#         posts = posts.filter(category__slug=category)
     
-    if sort == 'latest':
-        posts = posts.order_by('-published_at')
-    elif sort == 'popular':
-        posts = posts.annotate(comment_count=Count('comments')).order_by('-comment_count')
-    elif sort == 'views':
-        posts = posts.order_by('-views')
+#     if sort == 'latest':
+#         posts = posts.order_by('-published_at')
+#     elif sort == 'popular':
+#         posts = posts.annotate(comment_count=Count('comments')).order_by('-comment_count')
+#     elif sort == 'views':
+#         posts = posts.order_by('-views')
     
-    paginator = Paginator(posts, 12)
+#     paginator = Paginator(posts, 12)
     
-    try:
-        posts_page = paginator.page(page)
-        posts_html = render_to_string('myapp/partials/post_grid.html', {
-            'posts': posts_page,
-            'request': request
-        })
+#     try:
+#         posts_page = paginator.page(page)
+#         posts_html = render_to_string('myapp/partials/post_grid.html', {
+#             'posts': posts_page,
+#             'request': request
+#         })
         
-        return JsonResponse({
-            'html': posts_html,
-            'has_next': posts_page.has_next(),
-            'next_page': posts_page.next_page_number() if posts_page.has_next() else None
-        })
-    except:
-        return JsonResponse({'html': '', 'has_next': False})
+#         return JsonResponse({
+#             'html': posts_html,
+#             'has_next': posts_page.has_next(),
+#             'next_page': posts_page.next_page_number() if posts_page.has_next() else None
+#         })
+#     except:
+#         return JsonResponse({'html': '', 'has_next': False})
 
-# Add this to handle the newsletter form from templates
-@require_POST 
-def ajax_subscribe_newsletter(request):
-    """AJAX newsletter subscription"""
-    form = NewsletterForm(request.POST)
+# # Add this to handle the newsletter form from templates
+# @require_POST 
+# def ajax_subscribe_newsletter(request):
+#     """AJAX newsletter subscription"""
+#     form = NewsletterForm(request.POST)
     
-    if form.is_valid():
-        email = form.cleaned_data['email']
-        newsletter, created = Newsletter.objects.get_or_create(email=email)
+#     if form.is_valid():
+#         email = form.cleaned_data['email']
+#         newsletter, created = Newsletter.objects.get_or_create(email=email)
         
-        if created:
-            return JsonResponse({
-                'success': True, 
-                'message': 'Successfully subscribed to newsletter!'
-            })
-        else:
-            return JsonResponse({
-                'success': True, 
-                'message': 'You are already subscribed!'
-            })
-    else:
-        return JsonResponse({
-            'success': False, 
-            'message': 'Please enter a valid email address.'
-        })
+#         if created:
+#             return JsonResponse({
+#                 'success': True, 
+#                 'message': 'Successfully subscribed to newsletter!'
+#             })
+#         else:
+#             return JsonResponse({
+#                 'success': True, 
+#                 'message': 'You are already subscribed!'
+#             })
+#     else:
+#         return JsonResponse({
+#             'success': False, 
+#             'message': 'Please enter a valid email address.'
+#         })
 
-# Context processor to make common data available in all templates
-def blog_context(request):
-    """Context processor for common blog data"""
-    return {
-        'recent_posts': Post.objects.filter(status='published')
-                           .select_related('author', 'category')[:5],
-        'popular_posts': Post.objects.filter(status='published')
-                            .order_by('-views')[:5],
-        'categories': Category.objects.annotate(
-            post_count=Count('post', filter=Q(post__status='published'))
-        ).filter(post_count__gt=0).order_by('name'),
-        'site_stats': {
-            'total_posts': Post.objects.filter(status='published').count(),
-            'total_views': Post.objects.filter(status='published').aggregate(
-                total=Sum('views'))['total'] or 0,
-        }
+# # Context processor to make common data available in all templates
+# def blog_context(request):
+#     """Context processor for common blog data"""
+#     return {
+#         'recent_posts': Post.objects.filter(status='published')
+#                            .select_related('author', 'category')[:5],
+#         'popular_posts': Post.objects.filter(status='published')
+#                             .order_by('-views')[:5],
+#         'categories': Category.objects.annotate(
+#             post_count=Count('post', filter=Q(post__status='published'))
+#         ).filter(post_count__gt=0).order_by('name'),
+#         'site_stats': {
+#             'total_posts': Post.objects.filter(status='published').count(),
+#             'total_views': Post.objects.filter(status='published').aggregate(
+#                 total=Sum('views'))['total'] or 0,
+#         }
+#     }
+
+def about_view(request):
+    """About page view"""
+    context = {
+        'total_posts': Post.objects.filter(status='published').count(),
+        'total_categories': Category.objects.count(),
+        'total_views': Post.objects.filter(status='published').aggregate(
+            total=Sum('views')
+        )['total'] or 0,
+        'total_subscribers': Newsletter.objects.filter(is_active=True).count(),
+        'this_month_posts': Post.objects.filter(
+            status='published',
+            published_at__gte=timezone.now().replace(day=1)
+        ).count(),
     }
+    return render(request, 'myapp/about.html', context)
+
+def contact_view(request):
+    """Contact page view"""
+    if request.method == 'POST':
+        # Handle contact form submission
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        
+        if name and email and subject and message:
+            # Here you would typically save to a Contact model or send an email
+            # For now, we'll just show a success message
+            messages.success(request, 'Thank you for your message! I\'ll get back to you soon.')
+            return redirect('myapp:contact')
+        else:
+            messages.error(request, 'Please fill in all required fields.')
+    
+    return render(request, 'myapp/contact.html')
