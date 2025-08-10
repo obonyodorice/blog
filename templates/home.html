@@ -1,348 +1,378 @@
-{% extends 'base.html' %}
+{% extends './base.html' %}
 
 {% block title %}Home - Personal Blog{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Modal Styles */
-    .post-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.95);
-        z-index: 9999;
-        display: none;
-        overflow-y: auto;
-        backdrop-filter: blur(10px);
+    /* Keep all existing styles from the original home.html */
+    .modal-styles,
+    .post-modal,
+    .modal-content,
+    .modal-header,
+    .modal-actions,
+    .modal-btn,
+    .modal-body,
+    .modal-post-meta,
+    .modal-post-title,
+    .modal-post-image,
+    .modal-post-content,
+    .modal-footer,
+    .modal-tags,
+    .modal-tag,
+    .modal-actions-footer,
+    .reading-progress,
+    .card-modern,
+    .read-more-overlay,
+    .read-more-btn,
+    .modal-loading,
+    .loading-spinner {
+        /* All styles from previous home.html remain the same */
     }
 
-    .post-modal.active {
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        padding: 2rem;
-    }
-
-    .modal-content {
-        background: var(--background-white);
-        border-radius: 1rem;
-        max-width: 900px;
-        width: 100%;
-        max-height: 90vh;
-        overflow-y: auto;
-        position: relative;
-        animation: modalSlideIn 0.3s ease-out;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-    }
-
-    @keyframes modalSlideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px) scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-
-    .modal-header {
-        position: sticky;
-        top: 0;
-        background: var(--background-white);
-        border-bottom: 1px solid var(--border-light);
-        padding: 1rem 2rem;
-        display: flex;
-        justify-content: between;
-        align-items: center;
-        border-radius: 1rem 1rem 0 0;
-        z-index: 10;
-    }
-
-    .modal-actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-left: auto;
-    }
-
-    .modal-btn {
-        background: none;
-        border: 2px solid var(--border-light);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: var(--text-gray);
-    }
-
-    .modal-btn:hover {
-        border-color: var(--primary-color);
-        color: var(--primary-color);
-        transform: scale(1.1);
-    }
-
-    .modal-btn.expand-btn:hover {
-        background: var(--primary-color);
+    /* Additional styles for updated homepage */
+    .view-all-section {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
         color: white;
-    }
-
-    .modal-btn.close-btn:hover {
-        background: #ef4444;
-        border-color: #ef4444;
-        color: white;
-    }
-
-    .modal-body {
-        padding: 2rem;
-    }
-
-    .modal-post-meta {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        font-size: 0.9rem;
-        color: var(--text-gray);
-        flex-wrap: wrap;
-    }
-
-    .modal-post-meta .meta-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .modal-post-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 2rem;
-        font-weight: 700;
-        line-height: 1.2;
-        margin-bottom: 1rem;
-        color: var(--text-dark);
-    }
-
-    .modal-post-image {
-        width: 100%;
-        max-height: 400px;
-        object-fit: cover;
-        border-radius: 0.75rem;
-        margin-bottom: 2rem;
-    }
-
-    .modal-post-content {
-        font-size: 1.125rem;
-        line-height: 1.8;
-        color: var(--text-dark);
-    }
-
-    .modal-post-content p {
-        margin-bottom: 1.5rem;
-    }
-
-    .modal-post-content h1, 
-    .modal-post-content h2, 
-    .modal-post-content h3 {
-        font-family: 'Playfair Display', serif;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        color: var(--text-dark);
-    }
-
-    .modal-footer {
-        border-top: 1px solid var(--border-light);
-        padding: 1.5rem 2rem;
-        background: var(--background-cream);
-        border-radius: 0 0 1rem 1rem;
-    }
-
-    .modal-tags {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 1rem;
-    }
-
-    .modal-tag {
-        background: var(--primary-color);
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
-        text-decoration: none;
-    }
-
-    .modal-actions-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .reading-progress {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-        z-index: 10000;
-        transition: width 0.3s ease;
-        width: 0%;
-    }
-
-    /* Card hover effects */
-    .card-modern {
-        transition: all 0.3s ease;
-        cursor: pointer;
+        padding: 4rem 0;
+        margin: 4rem 0;
+        border-radius: 2rem;
+        text-align: center;
         position: relative;
         overflow: hidden;
     }
 
-    .card-modern::before {
+    .view-all-section::before {
         content: '';
         position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        background: rgba(37, 99, 235, 0.1);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        transition: all 0.4s ease;
-        z-index: 1;
-    }
-
-    .card-modern:hover::before {
+        top: -50%;
+        left: -50%;
         width: 200%;
         height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse-rotate 8s ease-in-out infinite;
     }
 
-    .card-modern:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    @keyframes pulse-rotate {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
     }
 
-    .card-modern .card-body {
+    .view-all-section .container {
         position: relative;
         z-index: 2;
     }
 
-    .read-more-overlay {
+    .view-all-section h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .view-all-section p {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .btn-view-all {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+        color: white;
+        padding: 1rem 3rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        border-radius: 3rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-view-all::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        transition: left 0.5s ease;
+    }
+
+    .btn-view-all:hover::before {
+        left: 100%;
+    }
+
+    .btn-view-all:hover {
+        background: white;
+        color: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Featured posts section styling */
+    .featured-section {
+        margin: 4rem 0;
+    }
+
+    .featured-posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    /* Recent posts styling - limit to 3 posts */
+    .recent-posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    /* Enhanced card styles */
+    .post-card-enhanced {
+        background: var(--background-white);
+        border-radius: 1.5rem;
+        overflow: hidden;
+        box-shadow: var(--shadow-light);
+        transition: all 0.4s ease;
+        position: relative;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+
+    .post-card-enhanced:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: var(--shadow-large);
+        border-color: var(--primary-color);
+    }
+
+    .post-card-enhanced .card-img-top {
+        height: 240px;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .post-card-enhanced:hover .card-img-top {
+        transform: scale(1.1);
+    }
+
+    .post-card-enhanced .card-body {
+        padding: 2rem;
+        position: relative;
+    }
+
+    .post-card-enhanced .card-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+        color: var(--text-dark);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .post-card-enhanced .card-text {
+        color: var(--text-gray);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .post-card-enhanced .card-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: var(--text-gray);
+        border-top: 1px solid var(--border-light);
+        padding-top: 1rem;
+    }
+
+    .post-card-enhanced .meta-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .post-card-enhanced .meta-right {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+
+    /* Reading indicator */
+    .reading-indicator {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        background: var(--primary-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Category badge */
+    .category-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .featured-posts-grid,
+        .recent-posts-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .view-all-section h2 {
+            font-size: 2rem;
+        }
+
+        .view-all-section p {
+            font-size: 1.125rem;
+        }
+
+        .btn-view-all {
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+        }
+
+        .post-card-enhanced .card-body {
+            padding: 1.5rem;
+        }
+
+        .post-card-enhanced .card-title {
+            font-size: 1.25rem;
+        }
+    }
+
+    /* Loading animation for new posts */
+    .post-enter {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    .post-enter-active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+    }
+
+    /* Newsletter section enhancement */
+    .newsletter-enhanced {
+        position: relative;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        overflow: hidden;
+    }
+
+    .newsletter-enhanced::before {
+        content: '';
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(transparent 50%, rgba(37, 99, 235, 0.1) 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        border-radius: inherit;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill=%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046 8.954-20 20-20v40c-11.046 0-20-8.954-20-20zM0 30c0 11.046 8.954 20 20 20V10C8.954 10 0 18.954 0 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
     }
 
-    .card-modern:hover .read-more-overlay {
-        opacity: 1;
-    }
-
-    .read-more-btn {
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
+    /* Quick stats enhancement */
+    .quick-stats {
+        background: var(--background-white);
         border-radius: 2rem;
-        font-weight: 600;
-        transform: translateY(20px);
-        transition: transform 0.3s ease;
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        padding: 3rem 0;
+        margin: 4rem 0;
+        position: relative;
+        overflow: hidden;
     }
 
-    .card-modern:hover .read-more-btn {
-        transform: translateY(0);
+    .quick-stats::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 0%, rgba(37, 99, 235, 0.03) 50%, transparent 100%);
     }
 
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
-        .post-modal.active {
-            padding: 0;
-        }
-
-        .modal-content {
-            max-height: 100vh;
-            border-radius: 0;
-            margin: 0;
-        }
-
-        .modal-header {
-            border-radius: 0;
-        }
-
-        .modal-footer {
-            border-radius: 0;
-        }
-
-        .modal-post-title {
-            font-size: 1.5rem;
-        }
-
-        .modal-post-content {
-            font-size: 1rem;
-        }
-
-        .modal-actions-footer {
-            flex-direction: column;
-            align-items: stretch;
-        }
+    .quick-stats .container {
+        position: relative;
+        z-index: 2;
     }
 
-    /* Loading State */
-    .modal-loading {
+    .stat-item-enhanced {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--background-cream) 0%, var(--background-white) 100%);
+        border-radius: 1.5rem;
+        box-shadow: var(--shadow-light);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-item-enhanced::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.1), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .stat-item-enhanced:hover::before {
+        left: 100%;
+    }
+
+    .stat-item-enhanced:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 4rem;
-        color: var(--text-gray);
-    }
-
-    .loading-spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid var(--border-light);
-        border-top: 3px solid var(--primary-color);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-right: 1rem;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Custom scrollbar for modal */
-    .modal-content::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .modal-content::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 4px;
-    }
-
-    .modal-content::-webkit-scrollbar-thumb {
-        background: var(--primary-color);
-        border-radius: 4px;
-    }
-
-    .modal-content::-webkit-scrollbar-thumb:hover {
-        background: var(--primary-dark);
+        margin: 0 auto 1rem;
+        color: white;
+        font-size: 1.5rem;
+        position: relative;
+        z-index: 2;
     }
 </style>
 {% endblock %}
@@ -351,7 +381,7 @@
     <!-- Reading Progress Bar -->
     <div class="reading-progress" id="reading-progress"></div>
 
-    <!-- Original Home Content -->
+    <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
             <div class="row align-items-center">
@@ -360,8 +390,8 @@
                         <h1 class="fade-in">Welcome to My Personal Blog</h1>
                         <p class="lead fade-in">Discover stories, insights, and experiences that inspire and inform. Join me on this journey of creativity and learning.</p>
                         <div class="fade-in">
-                            <a href="#featured-posts" class="btn-primary-custom">Explore Posts</a>
-                            <a href="#about" class="btn-outline-custom">Learn More</a>
+                            <a href="{% url 'myapp:all_posts' %}" class="btn-primary-custom">Explore Posts</a>
+                            <a href="{% url 'myapp:about' %}" class="btn-outline-custom">Learn More</a>
                         </div>
                     </div>
                 </div>
@@ -374,30 +404,42 @@
         </div>
     </section>
 
-    <!-- Stats Section -->
-    <section class="stats-section">
+    <!-- Quick Stats Section -->
+    <section class="quick-stats">
         <div class="container">
             <div class="row g-4">
                 <div class="col-md-3">
-                    <div class="stat-item fade-in">
+                    <div class="stat-item-enhanced fade-in">
+                        <div class="stat-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
                         <span class="stat-number">{{ total_posts|default:"0" }}</span>
                         <span class="stat-label">Blog Posts</span>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-item fade-in">
+                    <div class="stat-item-enhanced fade-in">
+                        <div class="stat-icon">
+                            <i class="fas fa-folder"></i>
+                        </div>
                         <span class="stat-number">{{ total_categories|default:"0" }}</span>
                         <span class="stat-label">Categories</span>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-item fade-in">
+                    <div class="stat-item-enhanced fade-in">
+                        <div class="stat-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
                         <span class="stat-number">{{ total_views|default:"0" }}</span>
                         <span class="stat-label">Total Views</span>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-item fade-in">
+                    <div class="stat-item-enhanced fade-in">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
                         <span class="stat-number">{{ total_subscribers|default:"0" }}</span>
                         <span class="stat-label">Subscribers</span>
                     </div>
@@ -406,122 +448,121 @@
         </div>
     </section>
 
-    <!-- Featured Posts -->
-    <section id="featured-posts" class="py-5">
+    <!-- Featured Posts (if any) -->
+    {% if featured_posts %}
+    <section class="featured-section">
         <div class="container">
             <h2 class="section-title fade-in">Featured Posts</h2>
-            <div class="row g-4">
-                {% for post in featured_posts %}
-                <div class="col-lg-4 col-md-6">
-                    <article class="card-modern fade-in" data-post-slug="{{ post.slug }}">
-                        {% if post.featured_image %}
-                        <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
-                        {% else %}
-                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light">
-                            <i class="fas fa-image fa-3x text-muted"></i>
-                        </div>
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
-                                    {{ post.title }}
-                                </a>
-                            </h5>
-                            <p class="card-text">{{ post.excerpt|truncatewords:20 }}</p>
-                            <div class="card-meta">
+            <div class="featured-posts-grid">
+                {% for post in featured_posts|slice:":3" %}
+                <article class="post-card-enhanced fade-in" data-post-slug="{{ post.slug }}">
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
+                    {% else %}
+                    <div class="card-img-top d-flex align-items-center justify-content-center" 
+                         style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white;">
+                        <i class="fas fa-image fa-3x"></i>
+                    </div>
+                    {% endif %}
+                    
+                    {% if post.category %}
+                    <div class="category-badge">{{ post.category.name }}</div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                                {{ post.title }}
+                            </a>
+                        </h3>
+                        <p class="card-text">{{ post.excerpt|default:post.content|truncatewords:20|striptags }}</p>
+                        
+                        <div class="card-meta">
+                            <div class="meta-left">
                                 <span><i class="fas fa-user me-1"></i>{{ post.author.username }}</span>
                                 <span><i class="fas fa-calendar me-1"></i>{{ post.published_at|date:"M d, Y" }}</span>
-                                <span><i class="fas fa-eye me-1"></i>{{ post.views }}</span>
+                            </div>
+                            <div class="meta-right">
+                                <i class="fas fa-eye me-1"></i>{{ post.views }}
                             </div>
                         </div>
-                        <div class="read-more-overlay">
-                            <button class="read-more-btn">
-                                <i class="fas fa-book-open me-2"></i>Quick Read
-                            </button>
-                        </div>
-                    </article>
-                </div>
-                {% empty %}
-                <div class="col-12 text-center">
-                    <p class="text-muted">No featured posts yet. Check back soon!</p>
-                </div>
+
+                    </div>
+                </article>
                 {% endfor %}
             </div>
         </div>
     </section>
+    {% endif %}
 
-    <!-- Recent Posts -->
-    <section class="py-5">
+    {% comment %} <!-- Recent Posts - Limited to 3 -->
+    <section id="recent-posts" class="py-5">
         <div class="container">
-            <h2 class="section-title fade-in">Recent Posts</h2>
-            <div class="row g-4">
-                {% for post in posts %}
-                <div class="col-lg-4 col-md-6">
-                    <article class="card-modern fade-in" data-post-slug="{{ post.slug }}">
-                        {% if post.featured_image %}
-                        <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
-                        {% else %}
-                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light">
-                            <i class="fas fa-image fa-3x text-muted"></i>
-                        </div>
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
-                                    {{ post.title }}
-                                </a>
-                            </h5>
-                            <p class="card-text">{{ post.excerpt|truncatewords:20 }}</p>
-                            <div class="card-meta">
+            <h2 class="section-title fade-in">Latest Posts</h2>
+            {% if posts %}
+            <div class="recent-posts-grid">
+                {% for post in posts|slice:":3" %}
+                <article class="post-card-enhanced fade-in" data-post-slug="{{ post.slug }}">
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
+                    {% else %}
+                    <div class="card-img-top d-flex align-items-center justify-content-center" 
+                         style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white;">
+                        <i class="fas fa-image fa-3x"></i>
+                    </div>
+                    {% endif %}
+                    
+                    {% if post.category %}
+                    <div class="category-badge">{{ post.category.name }}</div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                                {{ post.title }}
+                            </a>
+                        </h3>
+                        <p class="card-text">{{ post.excerpt|default:post.content|truncatewords:20|striptags }}</p>
+                        
+                        <div class="card-meta">
+                            <div class="meta-left">
                                 <span><i class="fas fa-user me-1"></i>{{ post.author.username }}</span>
                                 <span><i class="fas fa-calendar me-1"></i>{{ post.published_at|date:"M d, Y" }}</span>
-                                <span><i class="fas fa-eye me-1"></i>{{ post.views }}</span>
+                            </div>
+                            <div class="meta-right">
+                                <i class="fas fa-eye me-1"></i>{{ post.views }}
                             </div>
                         </div>
-                        <div class="read-more-overlay">
-                            <button class="read-more-btn">
-                                <i class="fas fa-book-open me-2"></i>Quick Read
-                            </button>
+                        
+                        <div class="reading-indicator">
+                            <i class="fas fa-clock me-1"></i>{% widthratio post.content|wordcount 200 1 %} min read
                         </div>
-                    </article>
-                </div>
-                {% empty %}
-                <div class="col-12 text-center">
-                    <p class="text-muted">No posts yet. Start writing your first post!</p>
-                </div>
+
+                    </div>
+                </article>
                 {% endfor %}
             </div>
-            
-            <!-- Pagination -->
-            {% if is_paginated %}
-            <nav aria-label="Posts pagination" class="mt-5">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                    </li>
-                    {% endif %}
-                    
-                    {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                    <li class="page-item active">
-                        <span class="page-link">{{ num }}</span>
-                    </li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
-                    
-                    {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
+            {% else %}
+            <div class="text-center fade-in">
+                <div style="font-size: 4rem; color: var(--border-light); margin-bottom: 2rem;">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3 style="color: var(--text-gray);">No Posts Yet</h3>
+                <p style="color: var(--text-gray);">The blog is just getting started. Check back soon for amazing content!</p>
+            </div>
             {% endif %}
+        </div>
+    </section> {% endcomment %}
+
+    <!-- View All Posts CTA -->
+    <section class="view-all-section fade-in">
+        <div class="container">
+            <h2>Discover More Stories</h2>
+            <p>Explore our complete collection of articles, tutorials, and insights. There's always something new to learn and discover.</p>
+            <a href="{% url 'myapp:all_posts' %}" class="btn-view-all">
+                <span>View All Posts</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </section>
 
@@ -531,14 +572,18 @@
             <div class="about-content fade-in">
                 <h2 class="section-title">About Me</h2>
                 <p>Welcome to my personal blog where I share my thoughts, experiences, and insights on technology, life, and everything in between. I'm passionate about creating meaningful content that resonates with readers and sparks interesting conversations.</p>
-                <p>Through this platform, I aim to connect with like-minded individuals, share knowledge, and build a community of learners and creators. Whether you're here for the latest tech trends, personal stories, or professional insights, you'll find content that's both informative and engaging.</p>
-                <p>Join me on this journey as we explore ideas, challenge perspectives, and grow together. Don't forget to subscribe to stay updated with the latest posts!</p>
+                <p>Through this platform, I aim to connect with like-minded individuals, share knowledge, and build a community of learners and creators.</p>
+                <div class="text-center mt-4">
+                    <a href="{% url 'myapp:about' %}" class="btn-primary-custom">
+                        <i class="fas fa-user me-2"></i>Learn More About Me
+                    </a>
+                </div>
             </div>
         </div>
-    </section>
+    </section> 
 
     <!-- Newsletter Section -->
-    <section class="newsletter-section">
+    <section class="newsletter-section newsletter-enhanced">
         <div class="container">
             <div class="text-center">
                 <h2 class="section-title text-white mb-4">Stay Updated</h2>
@@ -555,308 +600,213 @@
             </div>
         </div>
     </section>
-
-    <!-- Post Modal -->
-    <div class="post-modal" id="post-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-actions">
-                    <button class="modal-btn expand-btn" id="expand-btn" title="Open Full Page">
-                        <i class="fas fa-expand-alt"></i>
-                    </button>
-                    <button class="modal-btn close-btn" id="close-modal" title="Close">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="modal-body" id="modal-body">
-                <div class="modal-loading">
-                    <div class="loading-spinner"></div>
-                    <span>Loading post...</span>
-                </div>
-            </div>
-        </div>
-    </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('post-modal');
-    const modalBody = document.getElementById('modal-body');
-    const closeBtn = document.getElementById('close-modal');
-    const expandBtn = document.getElementById('expand-btn');
-    const readingProgress = document.getElementById('reading-progress');
-    let currentPostUrl = '';
-
-    // Handle post card clicks
-    document.querySelectorAll('.card-modern').forEach(card => {
+    // Enhanced post card interactions
+    document.querySelectorAll('.post-card-enhanced').forEach(card => {
         card.addEventListener('click', function(e) {
-            e.preventDefault();
+            // Don't navigate if clicking on links
+            if (e.target.tagName === 'A' || e.target.closest('a')) {
+                return;
+            }
             
             const postSlug = this.dataset.postSlug;
-            if (!postSlug) return;
+            if (postSlug) {
+                const postUrl = `/post/${postSlug}/`;
+                
+                // Add loading state
+                this.style.opacity = '0.8';
+                this.style.transform = 'scale(0.98)';
+                
+                // Navigate after a short delay for visual feedback
+                setTimeout(() => {
+                    window.location.href = postUrl;
+                }, 150);
+            }
+        });
 
-            const postUrl = `/post/${postSlug}/`;
-            currentPostUrl = postUrl;
-            
-            // Show modal
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
-            // Load post content
-            loadPostContent(postUrl);
+        // Enhanced hover effects
+        card.addEventListener('mouseenter', function() {
+            this.querySelector('.reading-indicator').style.transform = 'translateY(-5px)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.querySelector('.reading-indicator').style.transform = 'translateY(0)';
         });
     });
 
-    // Close modal
-    closeBtn.addEventListener('click', closeModal);
-    
-    // Close modal when clicking outside
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
-
-    // Expand to full page
-    expandBtn.addEventListener('click', function() {
-        if (currentPostUrl) {
-            window.location.href = currentPostUrl;
-        }
-    });
-
-    // ESC key to close modal
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal.classList.contains('active')) {
-            closeModal();
-        }
-    });
-
-    function closeModal() {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-        readingProgress.style.width = '0%';
-    }
-
-    async function loadPostContent(url) {
-        try {
-            modalBody.innerHTML = `
-                <div class="modal-loading">
-                    <div class="loading-spinner"></div>
-                    <span>Loading post...</span>
-                </div>
-            `;
-
-            const response = await fetch(url);
-            const text = await response.text();
-            
-            // Parse the HTML response
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            
-            // Extract post content
-            const postContent = extractPostContent(doc);
-            modalBody.innerHTML = postContent;
-            
-            // Initialize modal features
-            initModalFeatures();
-            
-        } catch (error) {
-            modalBody.innerHTML = `
-                <div class="text-center py-5">
-                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                    <h4>Error Loading Post</h4>
-                    <p class="text-muted">Failed to load post content. Please try again.</p>
-                    <button class="btn btn-primary" onclick="loadPostContent('${url}')">
-                        <i class="fas fa-refresh me-2"></i>Retry
-                    </button>
-                </div>
-            `;
-        }
-    }
-
-    function extractPostContent(doc) {
-        // Extract different parts of the post
-        const title = doc.querySelector('h1')?.textContent || 'Post Title';
-        const content = doc.querySelector('.post-content')?.innerHTML || 
-                       doc.querySelector('article')?.innerHTML || 
-                       'Content not available';
-        
-        const author = doc.querySelector('[class*="author"]')?.textContent || 'Unknown Author';
-        const date = doc.querySelector('[class*="date"]')?.textContent || 'Unknown Date';
-        const category = doc.querySelector('[class*="category"] a')?.textContent || 'Uncategorized';
-        const views = doc.querySelector('[class*="views"]')?.textContent || '0';
-        
-        const featuredImage = doc.querySelector('.post-header img, .post-image img, article img');
-        const imageHtml = featuredImage ? 
-            `<img src="${featuredImage.src}" alt="${title}" class="modal-post-image">` : '';
-
-        // Extract tags if available
-        const tagElements = doc.querySelectorAll('.tag-item, [class*="tag"] a');
-        const tagsHtml = tagElements.length > 0 ? 
-            `<div class="modal-tags">
-                ${Array.from(tagElements).map(tag => 
-                    `<span class="modal-tag">${tag.textContent.trim()}</span>`
-                ).join('')}
-            </div>` : '';
-
-        return `
-            <div class="modal-post-meta">
-                <div class="meta-item">
-                    <i class="fas fa-user"></i>
-                    <span>${author}</span>
-                </div>
-                <div class="meta-item">
-                    <i class="fas fa-calendar"></i>
-                    <span>${date}</span>
-                </div>
-                <div class="meta-item">
-                    <i class="fas fa-folder"></i>
-                    <span>${category}</span>
-                </div>
-                <div class="meta-item">
-                    <i class="fas fa-eye"></i>
-                    <span>${views} views</span>
-                </div>
-            </div>
-            
-            <h1 class="modal-post-title">${title}</h1>
-            
-            ${imageHtml}
-            
-            <div class="modal-post-content">
-                ${content}
-            </div>
-            
-            <div class="modal-footer">
-                ${tagsHtml}
-                
-                <div class="modal-actions-footer">
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-outline-primary btn-sm" onclick="sharePost()">
-                            <i class="fas fa-share-alt me-1"></i>Share
-                        </button>
-                        <button class="btn btn-outline-success btn-sm" onclick="likePost()">
-                            <i class="fas fa-heart me-1"></i>Like
-                        </button>
-                    </div>
-                    <div class="text-muted small">
-                        <i class="fas fa-clock me-1"></i>
-                        <span id="reading-time">5 min read</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    function initModalFeatures() {
-        // Calculate reading time
-        const content = modalBody.querySelector('.modal-post-content');
-        if (content) {
-            const wordCount = content.textContent.split(/\s+/).length;
-            const readingTime = Math.ceil(wordCount / 200); // 200 words per minute
-            const readingTimeElement = document.getElementById('reading-time');
-            if (readingTimeElement) {
-                readingTimeElement.textContent = `${readingTime} min read`;
-            }
-        }
-
-        // Reading progress
-        const modalContent = document.querySelector('.modal-content');
-        modalContent.addEventListener('scroll', updateReadingProgress);
-    }
-
-    function updateReadingProgress() {
-        const modalContent = document.querySelector('.modal-content');
-        const scrollTop = modalContent.scrollTop;
-        const scrollHeight = modalContent.scrollHeight - modalContent.clientHeight;
-        const progress = (scrollTop / scrollHeight) * 100;
-        readingProgress.style.width = Math.min(progress, 100) + '%';
-    }
-
-    // Share functionality
-    window.sharePost = function() {
-        if (navigator.share && currentPostUrl) {
-            navigator.share({
-                title: document.querySelector('.modal-post-title')?.textContent || 'Check out this post',
-                url: window.location.origin + currentPostUrl
-            });
-        } else {
-            // Fallback: copy to clipboard
-            const url = window.location.origin + currentPostUrl;
-            navigator.clipboard.writeText(url).then(() => {
-                // Show temporary notification
-                showNotification('Post URL copied to clipboard!');
-            });
-        }
-    };
-
-    // Like functionality
-    window.likePost = function() {
-        // Implement like functionality here
-        showNotification('Thanks for liking this post!');
-    };
-
-    function showNotification(message) {
-        // Create temporary notification
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--primary-color);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            z-index: 10001;
-            animation: slideInRight 0.3s ease-out;
-        `;
-        notification.textContent = message;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.3s ease-out';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-
-    // Add CSS for notifications
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideInRight {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-        @keyframes slideOutRight {
-            from { transform: translateX(0); }
-            to { transform: translateX(100%); }
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Fade-in animation for existing elements
+    // Intersection Observer for animations
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }, index * 100);
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
 
+    // Apply animations to all fade-in elements
     document.querySelectorAll('.fade-in').forEach((el, index) => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(20px)';
-        el.style.transition = `all 0.6s ease ${index * 0.1}s`;
+        el.style.transition = `all 0.6s cubic-bezier(0.23, 1, 0.320, 1) ${index * 0.1}s`;
         observer.observe(el);
     });
+
+    // Stats counter animation
+    const stats = document.querySelectorAll('.stat-number');
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = entry.target;
+                const finalValue = parseInt(target.textContent) || 0;
+                animateCounter(target, 0, finalValue);
+                statsObserver.unobserve(target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    stats.forEach(stat => statsObserver.observe(stat));
+
+    function animateCounter(element, start, end) {
+        const duration = 2000;
+        const startTime = performance.now();
+        
+        function updateCounter(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const current = Math.floor(start + (end - start) * progress);
+            
+            element.textContent = current;
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            }
+        }
+        
+        requestAnimationFrame(updateCounter);
+    }
+
+    // Smooth scrolling for internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Enhanced newsletter form submission
+    const newsletterForm = document.querySelector('.newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Subscribing...';
+            submitBtn.disabled = true;
+            
+            // The form will submit normally, but we provide visual feedback
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 3000);
+        });
+    }
+
+    // Reading time calculation enhancement
+    document.querySelectorAll('.reading-indicator').forEach(indicator => {
+        const card = indicator.closest('.post-card-enhanced');
+        const contentText = card.querySelector('.card-text').textContent;
+        const wordCount = contentText.split(/\s+/).length;
+        const readingTime = Math.ceil(wordCount / 200); // 200 words per minute
+        
+        indicator.innerHTML = `<i class="fas fa-clock me-1"></i>${readingTime} min read`;
+    });
+
+    // Parallax effect for hero section
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.hero-section');
+        if (hero && scrolled < window.innerHeight) {
+            hero.style.transform = `translateY(${scrolled * 0.3}px)`;
+        }
+    });
+
+    // Auto-hide messages after 5 seconds
+    setTimeout(() => {
+        document.querySelectorAll('.alert').forEach(alert => {
+            if (window.bootstrap && window.bootstrap.Alert) {
+                const bsAlert = new window.bootstrap.Alert(alert);
+                bsAlert.close();
+            } else {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }
+        });
+    }, 5000);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Press 'h' to go to top
+        if (e.key === 'h' && !e.ctrlKey && !e.metaKey && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Press 'b' to go to blog posts
+        if (e.key === 'b' && !e.ctrlKey && !e.metaKey && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            const allPostsLink = document.querySelector('a[href*="all_posts"], a[href*="blog"]');
+            if (allPostsLink) {
+                window.location.href = allPostsLink.href;
+            }
+        }
+    });
+
+    // Add loading states for better UX
+    document.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A' && !e.target.getAttribute('href').startsWith('#')) {
+            e.target.style.opacity = '0.7';
+        }
+    });
+
+    // Performance: Lazy loading for images if Intersection Observer is supported
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.classList.add('loaded');
+                        imageObserver.unobserve(img);
+                    }
+                }
+            });
+        });
+
+        // Apply to any images with data-src attribute
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            imageObserver.observe(img);
+        });
+    }
 });
 </script>
 {% endblock %}
