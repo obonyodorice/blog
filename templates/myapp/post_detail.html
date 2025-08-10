@@ -258,8 +258,8 @@
                     <i class="fas fa-comments me-2"></i>Comments ({{ comments.count }})
                 </h3>
                 
-                <!-- Comment Form -->
-                {% if user.is_authenticated %}
+                {% comment %} <!-- Comment Form -->
+                {% if user.is_authenticated %} {% endcomment %}
                 <div class="comment-item mb-4">
                     <h5 class="mb-3">Leave a Comment</h5>
                     <form method="post" action="{% url 'myapp:add_comment' post.slug %}">
@@ -270,11 +270,11 @@
                         </button>
                     </form>
                 </div>
-                {% else %}
+                {% comment %} {% else %}
                 <div class="comment-item mb-4 text-center">
                     <p class="mb-3">Please <a href="{% url 'members:login' %}">login</a> to leave a comment.</p>
                 </div>
-                {% endif %}
+                {% endif %} {% endcomment %}
                 
                 <!-- Comments List -->
                 {% for comment in comments %}
