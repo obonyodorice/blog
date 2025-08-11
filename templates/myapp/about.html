@@ -1,0 +1,626 @@
+{% extends '../base.html' %}
+
+{% block title %}About - Personal Blog{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 5rem 0;
+        margin-bottom: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .about-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill=%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+
+    .about-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+
+    .about-hero h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 4rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .about-hero .lead {
+        font-size: 1.5rem;
+        opacity: 0.95;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .profile-section {
+        background: var(--background-white);
+        border-radius: 2rem;
+        padding: 4rem 0;
+        margin: 4rem 0;
+        box-shadow: var(--shadow-medium);
+        position: relative;
+    }
+
+    .profile-image {
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 8px solid var(--primary-color);
+        box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .profile-image:hover {
+        transform: scale(1.05);
+    }
+
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .skill-card {
+        background: var(--background-white);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: var(--shadow-light);
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .skill-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-medium);
+        border-color: var(--primary-color);
+    }
+
+    .skill-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .skill-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+
+    .timeline {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .timeline::after {
+        content: '';
+        position: absolute;
+        width: 4px;
+        background: var(--primary-color);
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        margin-left: -2px;
+    }
+
+    .timeline-item {
+        padding: 2rem 3rem;
+        position: relative;
+        background-color: inherit;
+        width: 50%;
+        margin-bottom: 2rem;
+    }
+
+    .timeline-item::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        right: -10px;
+        background-color: var(--primary-color);
+        border: 4px solid var(--background-white);
+        top: 2rem;
+        border-radius: 50%;
+        z-index: 1;
+        box-shadow: 0 0 0 3px var(--primary-color);
+    }
+
+    .timeline-item.left {
+        left: 0;
+    }
+
+    .timeline-item.right {
+        left: 50%;
+    }
+
+    .timeline-item.right::after {
+        left: -10px;
+    }
+
+    .timeline-content {
+        padding: 2rem;
+        background: var(--background-white);
+        border-radius: 1rem;
+        box-shadow: var(--shadow-light);
+        transition: all 0.3s ease;
+    }
+
+    .timeline-content:hover {
+        box-shadow: var(--shadow-medium);
+        transform: translateY(-2px);
+    }
+
+    .timeline-year {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .timeline-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .value-card {
+        background: linear-gradient(135deg, var(--background-white) 0%, var(--background-cream) 100%);
+        padding: 2.5rem;
+        border-radius: 1.5rem;
+        border-left: 5px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .value-card:hover {
+        transform: translateX(10px);
+        box-shadow: var(--shadow-medium);
+    }
+
+    .value-icon {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .value-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+
+    .contact-cta {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 4rem 0;
+        margin: 4rem 0 0 0;
+        text-align: center;
+        border-radius: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contact-cta::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .contact-cta .container {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .about-hero h1 {
+            font-size: 2.5rem;
+        }
+
+        .about-hero .lead {
+            font-size: 1.25rem;
+        }
+
+        .timeline::after {
+            left: 31px;
+        }
+
+        .timeline-item {
+            width: 100%;
+            padding-left: 4rem;
+            padding-right: 2rem;
+        }
+
+        .timeline-item::after {
+            left: 21px;
+        }
+
+        .timeline-item.right {
+            left: 0%;
+        }
+
+        .profile-image {
+            width: 200px;
+            height: 200px;
+        }
+
+        .skills-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- About Hero Section -->
+<section class="about-hero">
+    <div class="container text-center">
+        <h1 class="fade-in">About Me</h1>
+        <p class="lead fade-in">Passionate writer, developer, and storyteller sharing insights from the journey of continuous learning and growth.</p>
+    </div>
+</section>
+
+<!-- Profile Section -->
+<section class="profile-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-4 text-center mb-4 mb-lg-0">
+                <img src="/media/posts/fa581e45-a83a-4782-970f-1a7942ce8af8.jpg" alt="Profile Picture" class="profile-image fade-in">
+            </div>
+            <div class="col-lg-8">
+                <div class="fade-in">
+                    <h2 class="serif-font mb-4" style="color: var(--text-dark); font-size: 2.5rem;">Hello, I'm Dorice Obonyo</h2>
+                    <p class="lead mb-4" style="color: var(--text-gray);">
+                        Welcome! I’m a blogger, developer, and lifelong learner from Nairobi, Kenya. Here, I share insights, experiences, and discoveries in technology, personal growth, and creativity.
+                    </p>
+                    <p style="color: var(--text-gray); font-size: 1.125rem; line-height: 1.8;">
+                        My journey started with a curiosity about how things work and a drive to create meaningful solutions. Over time, I’ve been a software developer, technical writer, mentor, and student — each role shaping my perspective and deepening my passion for sharing knowledge.
+                    </p>
+                    <p style="color: var(--text-gray); font-size: 1.125rem; line-height: 1.8;">
+                        When I’m not coding or writing, I’m exploring new technologies, reading great books, or enjoying Kenya’s vibrant culture and landscapes.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Skills & Expertise Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title fade-in">What I Do</h2>
+        <div class="skills-grid">
+            <div class="skill-card fade-in">
+                <div class="skill-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3 class="skill-title">Web Development</h3>
+                <p style="color: var(--text-gray);">
+                    Creating modern, responsive web apps with Django, Python, JavaScript, and more — combining user-friendly design with strong backend systems.
+                </p>
+            </div>
+            <div class="skill-card fade-in">
+                <div class="skill-icon">
+                    <i class="fas fa-pen-fancy"></i>
+                </div>
+                <h3 class="skill-title">Technical Writing</h3>
+                <p style="color: var(--text-gray);">
+                    Turning complex tech concepts into clear, engaging tutorials and documentation for all audiences.
+                </p>
+            </div>
+            <div class="skill-card fade-in">
+                <div class="skill-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3 class="skill-title">Problem Solving</h3>
+                <p style="color: var(--text-gray);">
+                    Tackling challenges creatively — from debugging to process optimization — and turning problems into opportunities.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Journey Timeline -->
+<section class="py-5" style="background: var(--background-cream);">
+    <div class="container">
+        <h2 class="section-title fade-in">My Journey</h2>
+        <div class="timeline">
+            <div class="timeline-item left fade-in">
+                <div class="timeline-content">
+                    <div class="timeline-year">2023</div>
+                    <h3 class="timeline-title">Started Coding Journey</h3>
+                    <p style="color: var(--text-gray);">
+                        Began learning programming with Python and discovered the joy of creating solutions through code. 
+                        This marked the beginning of my passion for technology and problem-solving.
+                    </p>
+                </div>
+            </div>
+            <div class="timeline-item right fade-in">
+                <div class="timeline-content">
+                    <div class="timeline-year">2024</div>
+                    <h3 class="timeline-title">First Web Application</h3>
+                    <p style="color: var(--text-gray);">
+                        Built my first Django web application, learning about databases, user authentication, and deployment. 
+                        The experience opened my eyes to the power of web development.
+                    </p>
+                </div>
+            </div>
+            <div class="timeline-item left fade-in">
+                <div class="timeline-content">
+                    <div class="timeline-year">2025</div>
+                    <h3 class="timeline-title">Started Technical Writing</h3>
+                    <p style="color: var(--text-gray);">
+                        Began documenting my learning journey and sharing tutorials online. 
+                        Discovered that teaching others reinforced my own understanding and helped build a community.
+                    </p>
+                </div>
+            </div>
+            {% comment %} <div class="timeline-item right fade-in">
+                <div class="timeline-content">
+                    <div class="timeline-year">2023</div>
+                    <h3 class="timeline-title">Professional Development</h3>
+                    <p style="color: var(--text-gray);">
+                        Took on freelance projects and collaborated with teams on various web development initiatives. 
+                        Gained valuable experience in project management and client communication.
+                    </p>
+                </div>
+            </div> {% endcomment %}
+            <div class="timeline-item right fade-in">
+                <div class="timeline-content">
+                    <div class="timeline-year">2025</div>
+                    <h3 class="timeline-title">Launched Personal Blog</h3>
+                    <p style="color: var(--text-gray);">
+                        Created this platform to share insights, tutorials, and personal experiences. 
+                        Focused on building a community of learners and contributors in the tech space.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values & Philosophy -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title fade-in">My Values</h2>
+        <div class="values-grid">
+            <div class="value-card fade-in">
+                <div class="value-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3 class="value-title">Authenticity</h3>
+                <p style="color: var(--text-gray);">
+                    I believe in being genuine and transparent in all my interactions. 
+                    Sharing real experiences, including failures and lessons learned, creates meaningful connections.
+                </p>
+            </div>
+            <div class="value-card fade-in">
+                <div class="value-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="value-title">Community</h3>
+                <p style="color: var(--text-gray);">
+                    Knowledge grows when shared. I'm committed to contributing to the developer community 
+                    and helping others on their learning journey.
+                </p>
+            </div>
+            <div class="value-card fade-in">
+                <div class="value-icon">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <h3 class="value-title">Continuous Learning</h3>
+                <p style="color: var(--text-gray);">
+                    Technology evolves rapidly, and so must we. I embrace change and constantly seek 
+                    new challenges that push me beyond my comfort zone.
+                </p>
+            </div>
+            <div class="value-card fade-in">
+                <div class="value-icon">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h3 class="value-title">Work-Life Balance</h3>
+                <p style="color: var(--text-gray);">
+                    While passionate about technology, I believe in maintaining balance. 
+                    Time for family, friends, and personal interests is essential for creativity and well-being.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Fun Facts -->
+<section class="py-5" style="background: var(--background-white);">
+    <div class="container">
+        <h2 class="section-title fade-in">Fun Facts About Me</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-item fade-in">
+                    <span class="stat-number">3+</span>
+                    <span class="stat-label">Years Coding</span>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-item fade-in">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-label">Projects Built</span>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-item fade-in">
+                    <span class="stat-number">12</span>
+                    <span class="stat-label">Technologies Learned</span>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-item fade-in">
+                    <span class="stat-number">∞</span>
+                    <span class="stat-label">Cups of Coffee</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="fade-in">
+                    <h3 class="serif-font mb-4" style="color: var(--text-dark);">Beyond the Code</h3>
+                    <p style="color: var(--text-gray); font-size: 1.125rem; line-height: 1.8;">
+                        When I'm not immersed in code, I love exploring Kenya's diverse landscapes, 
+                        from the bustling streets of Nairobi to the serene beaches of the coast. 
+                        I'm an avid reader of science fiction and business books, and I enjoy experimenting 
+                        with new recipes in the kitchen – coding isn't the only place where I like to debug problems!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact CTA -->
+<section class="contact-cta">
+    <div class="container text-center">
+        <h2 class="serif-font mb-4" style="font-size: 2.5rem;">Let's Connect!</h2>
+        <p class="lead mb-4">
+            I'm always excited to connect with fellow developers, writers, and curious minds. 
+            Whether you want to collaborate, share ideas, or just say hello – I'd love to hear from you.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="mailto:contact@personalblog.com" class="btn-primary-custom">
+                <i class="fas fa-envelope me-2"></i>Send Email
+            </a>
+            <a href="/contact/" class="btn-outline-custom" style="border-color: white; color: white;">
+                <i class="fas fa-paper-plane me-2"></i>Contact Form
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fade-in animation on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `all 0.6s ease ${index * 0.1}s`;
+        observer.observe(el);
+    });
+
+    // Timeline item animation enhancement
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    timelineItems.forEach((item, index) => {
+        item.style.transitionDelay = `${index * 0.2}s`;
+    });
+
+    // Parallax effect for hero section
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.about-hero');
+        if (hero) {
+            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+        }
+    });
+
+    // Smooth scroll for internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Stats counter animation
+    const stats = document.querySelectorAll('.stat-number');
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = entry.target;
+                const finalValue = target.textContent;
+                if (!isNaN(finalValue.replace('+', ''))) {
+                    animateCounter(target, 0, parseInt(finalValue.replace('+', '')));
+                }
+            }
+        });
+    }, { threshold: 0.5 });
+
+    stats.forEach(stat => statsObserver.observe(stat));
+
+    function animateCounter(element, start, end) {
+        const duration = 2000;
+        const startTime = performance.now();
+        
+        function updateCounter(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const current = Math.floor(start + (end - start) * progress);
+            
+            element.textContent = current + (element.textContent.includes('+') ? '+' : '');
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            }
+        }
+        
+        requestAnimationFrame(updateCounter);
+    }
+});
+</script>
+{% endblock %}
