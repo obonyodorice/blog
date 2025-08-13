@@ -4,204 +4,162 @@
 
 {% block extra_css %}
 <style>
-    /* Enhanced styles for homepage */
-    
-    /* Reading Progress Bar */
-    .reading-progress {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 0%;
-        height: 3px;
-        background: var(--gradient-primary);
-        z-index: 1001;
-        transition: width 0.3s ease;
+    /* Keep all existing styles from the original home.html */
+    .modal-styles,
+    .post-modal,
+    .modal-content,
+    .modal-header,
+    .modal-actions,
+    .modal-btn,
+    .modal-body,
+    .modal-post-meta,
+    .modal-post-title,
+    .modal-post-image,
+    .modal-post-content,
+    .modal-footer,
+    .modal-tags,
+    .modal-tag,
+    .modal-actions-footer,
+    .reading-progress,
+    .card-modern,
+    .read-more-overlay,
+    .read-more-btn,
+    .modal-loading,
+    .loading-spinner {
+        /* All styles from previous home.html remain the same */
     }
 
-    /* Hero Section Enhancements */
-    .hero-section {
-        min-height: 80vh;
-        display: flex;
-        align-items: center;
+    /* Additional styles for updated homepage */
+    .view-all-section {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 4rem 0;
+        margin: 4rem 0;
+        border-radius: 2rem;
+        text-align: center;
         position: relative;
+        overflow: hidden;
     }
 
-    .hero-image {
+    .view-all-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse-rotate 8s ease-in-out infinite;
+    }
+
+    @keyframes pulse-rotate {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
+    }
+
+    .view-all-section .container {
         position: relative;
         z-index: 2;
     }
 
-    .hero-icon {
-        font-size: 15rem;
-        background: var(--gradient-soft);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        opacity: 0.3;
-        animation: float 6s ease-in-out infinite;
-        position: relative;
+    .view-all-section h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
     }
 
-    .hero-icon::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 120%;
-        height: 120%;
-        background: radial-gradient(circle, rgba(217, 70, 239, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        z-index: -1;
-        animation: pulse 4s ease-in-out infinite alternate;
+    .view-all-section p {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
-    @keyframes pulse {
-        0% { transform: translate(-50%, -50%) scale(1); }
-        100% { transform: translate(-50%, -50%) scale(1.2); }
-    }
-
-    /* Quick Stats Section */
-    .quick-stats {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(20px);
-        border-radius: 30px;
-        padding: 4rem 0;
-        margin: 5rem 0;
+    .btn-view-all {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+        color: white;
+        padding: 1rem 3rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        border-radius: 3rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
     }
 
-    .quick-stats::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: 
-            radial-gradient(circle at 20% 20%, rgba(217, 70, 239, 0.05) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
-    }
-
-    .stat-item-enhanced {
-        text-align: center;
-        padding: 3rem 2rem;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9));
-        backdrop-filter: blur(20px);
-        border-radius: 25px;
-        box-shadow: var(--shadow-light);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-    }
-
-    .stat-item-enhanced::before {
+    .btn-view-all::before {
         content: '';
         position: absolute;
         top: 0;
         left: -100%;
         width: 100%;
         height: 100%;
-        background: var(--gradient-soft);
-        opacity: 0;
-        transition: all 0.5s ease;
-        z-index: 1;
+        background: rgba(255, 255, 255, 0.2);
+        transition: left 0.5s ease;
     }
 
-    .stat-item-enhanced:hover::before {
-        left: 0;
-        opacity: 1;
+    .btn-view-all:hover::before {
+        left: 100%;
     }
 
-    .stat-item-enhanced:hover {
-        transform: translateY(-10px) scale(1.05);
-        box-shadow: var(--shadow-large);
+    .btn-view-all:hover {
+        background: white;
+        color: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     }
 
-    .stat-item-enhanced > * {
-        position: relative;
-        z-index: 2;
-    }
-
-    .stat-icon {
-        width: 80px;
-        height: 80px;
-        background: var(--gradient-primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        color: white;
-        font-size: 2rem;
-        box-shadow: var(--shadow-colored);
-        transition: all 0.3s ease;
-    }
-
-    .stat-item-enhanced:hover .stat-icon {
-        transform: rotate(360deg) scale(1.1);
-        box-shadow: 0 0 30px rgba(217, 70, 239, 0.5);
-    }
-
-    /* Featured Posts Section */
+    /* Featured posts section styling */
     .featured-section {
-        margin: 5rem 0;
+        margin: 4rem 0;
     }
 
     .featured-posts-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-        gap: 3rem;
-        margin-bottom: 4rem;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
     }
 
-    /* Post Cards Enhancement */
+    /* Recent posts styling - limit to 3 posts */
+    .recent-posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    /* Enhanced card styles */
     .post-card-enhanced {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(20px);
-        border-radius: 25px;
+        background: var(--background-white);
+        border-radius: 1.5rem;
         overflow: hidden;
         box-shadow: var(--shadow-light);
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.4s ease;
         position: relative;
         cursor: pointer;
         border: 2px solid transparent;
-        height: fit-content;
-    }
-
-    .post-card-enhanced::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--gradient-soft);
-        opacity: 0;
-        transition: opacity 0.4s ease;
-        z-index: 1;
-    }
-
-    .post-card-enhanced:hover::before {
-        opacity: 0.1;
     }
 
     .post-card-enhanced:hover {
-        transform: translateY(-12px) scale(1.03);
+        transform: translateY(-8px) scale(1.02);
         box-shadow: var(--shadow-large);
-        border-color: var(--primary-light);
+        border-color: var(--primary-color);
     }
 
     .post-card-enhanced .card-img-top {
-        height: 280px;
+        height: 240px;
         object-fit: cover;
-        transition: transform 0.5s ease;
-        position: relative;
-        z-index: 2;
+        transition: transform 0.4s ease;
     }
 
     .post-card-enhanced:hover .card-img-top {
@@ -209,40 +167,27 @@
     }
 
     .post-card-enhanced .card-body {
-        padding: 2.5rem;
+        padding: 2rem;
         position: relative;
-        z-index: 2;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
     }
 
     .post-card-enhanced .card-title {
-        font-family: 'Crimson Text', serif;
-        font-size: 1.5rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
         font-weight: 600;
-        margin-bottom: 1.2rem;
-        line-height: 1.4;
+        margin-bottom: 1rem;
+        line-height: 1.3;
         color: var(--text-dark);
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        transition: color 0.3s ease;
-    }
-
-    .post-card-enhanced:hover .card-title {
-        color: var(--primary-color);
-    }
-
-    .post-card-enhanced .card-title a {
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.3s ease;
     }
 
     .post-card-enhanced .card-text {
         color: var(--text-gray);
-        margin-bottom: 2rem;
-        line-height: 1.7;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
         display: -webkit-box;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
@@ -253,184 +198,99 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 0.9rem;
+        font-size: 0.875rem;
         color: var(--text-gray);
         border-top: 1px solid var(--border-light);
-        padding-top: 1.5rem;
+        padding-top: 1rem;
     }
 
     .post-card-enhanced .meta-left {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
-    }
-
-    .post-card-enhanced .meta-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
     }
 
     .post-card-enhanced .meta-right {
         display: flex;
         align-items: center;
-        gap: 0.7rem;
+        gap: 0.5rem;
         color: var(--primary-color);
-        font-weight: 600;
-        background: rgba(217, 70, 239, 0.1);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-    }
-
-    /* Category badge */
-    .category-badge {
-        position: absolute;
-        top: 1.5rem;
-        left: 1.5rem;
-        background: var(--gradient-primary);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        z-index: 3;
-        backdrop-filter: blur(10px);
-        box-shadow: var(--shadow-colored);
+        font-weight: 500;
     }
 
     /* Reading indicator */
     .reading-indicator {
         position: absolute;
-        bottom: 1.5rem;
-        right: 1.5rem;
-        background: rgba(255, 255, 255, 0.9);
-        color: var(--primary-color);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        box-shadow: var(--shadow-light);
-        backdrop-filter: blur(10px);
-        z-index: 3;
-        transition: all 0.3s ease;
-    }
-
-    .post-card-enhanced:hover .reading-indicator {
+        bottom: 1rem;
+        right: 1rem;
         background: var(--primary-color);
         color: white;
-        transform: translateY(-5px);
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
     }
 
-    /* View All Posts CTA */
-    .view-all-section {
-        background: var(--gradient-primary);
-        color: white;
-        padding: 6rem 0;
-        margin: 5rem 0;
-        border-radius: 40px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .view-all-section::before {
-        content: '';
+    /* Category badge */
+    .category-badge {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: 
-            radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 60%),
-            radial-gradient(circle at 70% 70%, rgba(6, 182, 212, 0.2) 0%, transparent 60%);
-    }
-
-    .view-all-section .container {
-        position: relative;
-        z-index: 2;
-    }
-
-    .view-all-section h2 {
-        font-family: 'Crimson Text', serif;
-        font-size: 3rem;
-        font-weight: 700;
-        margin-bottom: 2rem;
-    }
-
-    .view-all-section p {
-        font-size: 1.3rem;
-        margin-bottom: 3rem;
-        opacity: 0.95;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-        line-height: 1.6;
-    }
-
-    .btn-view-all {
-        background: rgba(255, 255, 255, 0.2);
-        border: 3px solid rgba(255, 255, 255, 0.8);
+        top: 1rem;
+        left: 1rem;
+        background: rgba(0, 0, 0, 0.7);
         color: white;
-        padding: 1.2rem 3.5rem;
-        font-size: 1.2rem;
-        font-weight: 700;
-        border-radius: 50px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 1rem;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-        backdrop-filter: blur(20px);
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
     }
 
-    .btn-view-all::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.3);
-        transition: left 0.5s ease;
-        z-index: 1;
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .featured-posts-grid,
+        .recent-posts-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .view-all-section h2 {
+            font-size: 2rem;
+        }
+
+        .view-all-section p {
+            font-size: 1.125rem;
+        }
+
+        .btn-view-all {
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+        }
+
+        .post-card-enhanced .card-body {
+            padding: 1.5rem;
+        }
+
+        .post-card-enhanced .card-title {
+            font-size: 1.25rem;
+        }
     }
 
-    .btn-view-all:hover::before {
-        left: 100%;
+    /* Loading animation for new posts */
+    .post-enter {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
     }
 
-    .btn-view-all span {
-        position: relative;
-        z-index: 2;
+    .post-enter-active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
     }
 
-    .btn-view-all i {
-        position: relative;
-        z-index: 2;
-        transition: transform 0.3s ease;
-    }
-
-    .btn-view-all:hover {
-        background: white;
-        color: var(--primary-color);
-        transform: translateY(-5px) scale(1.05);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .btn-view-all:hover i {
-        transform: translateX(5px);
-    }
-
-    /* Newsletter Section Enhancement */
+    /* Newsletter section enhancement */
     .newsletter-enhanced {
         position: relative;
-        background: var(--gradient-accent);
-        border-radius: 40px;
-        margin: 5rem 0;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
         overflow: hidden;
     }
 
@@ -441,166 +301,78 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: 
-            radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(217, 70, 239, 0.2) 0%, transparent 50%);
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill=%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046 8.954-20 20-20v40c-11.046 0-20-8.954-20-20zM0 30c0 11.046 8.954 20 20 20V10C8.954 10 0 18.954 0 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
     }
 
-    .newsletter-enhanced .section-title {
-        color: white;
-        margin-bottom: 3rem;
-    }
-
-    .newsletter-enhanced .section-title::after {
-        background: rgba(255, 255, 255, 0.3);
-    }
-
-    .newsletter-form .input-group {
-        max-width: 600px;
-        margin: 0 auto;
-        box-shadow: var(--shadow-large);
-        border-radius: 50px;
-        overflow: hidden;
-        background: white;
-    }
-
-    .newsletter-form .form-control {
-        border: none;
-        padding: 1.2rem 2rem;
-        font-size: 1.1rem;
-        background: transparent;
-        border-radius: 50px 0 0 50px;
-    }
-
-    .newsletter-form .btn {
-        padding: 1.2rem 2.5rem;
-        font-weight: 700;
-        font-size: 1.1rem;
-        background: var(--gradient-primary);
-        border: none;
-        color: white;
-        border-radius: 0 50px 50px 0;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .newsletter-form .btn:hover {
-        background: var(--gradient-accent);
-        transform: scale(1.05);
-    }
-
-    /* Empty state styling */
-    .empty-state {
-        text-align: center;
-        padding: 6rem 2rem;
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(20px);
-        border-radius: 30px;
+    /* Quick stats enhancement */
+    .quick-stats {
+        background: var(--background-white);
+        border-radius: 2rem;
+        padding: 3rem 0;
         margin: 4rem 0;
+        position: relative;
+        overflow: hidden;
     }
 
-    .empty-state-icon {
-        font-size: 6rem;
-        background: var(--gradient-soft);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 2rem;
-        opacity: 0.7;
+    .quick-stats::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 0%, rgba(37, 99, 235, 0.03) 50%, transparent 100%);
     }
 
-    .empty-state h3 {
-        font-family: 'Crimson Text', serif;
-        font-size: 2rem;
-        color: var(--text-medium);
-        margin-bottom: 1rem;
+    .quick-stats .container {
+        position: relative;
+        z-index: 2;
     }
 
-    .empty-state p {
-        color: var(--text-gray);
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
+    .stat-item-enhanced {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--background-cream) 0%, var(--background-white) 100%);
+        border-radius: 1.5rem;
+        box-shadow: var(--shadow-light);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
 
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
-        .featured-posts-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-
-        .view-all-section h2 {
-            font-size: 2.2rem;
-        }
-
-        .view-all-section p {
-            font-size: 1.1rem;
-        }
-
-        .btn-view-all {
-            padding: 1rem 2.5rem;
-            font-size: 1rem;
-        }
-
-        .post-card-enhanced .card-body {
-            padding: 2rem;
-        }
-
-        .post-card-enhanced .card-title {
-            font-size: 1.3rem;
-        }
-
-        .hero-icon {
-            font-size: 8rem;
-        }
-
-        .stat-item-enhanced {
-            padding: 2rem 1.5rem;
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-        }
+    .stat-item-enhanced::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.1), transparent);
+        transition: left 0.5s ease;
     }
 
-    /* Loading animations */
-    .post-enter {
-        opacity: 0;
-        transform: translateY(40px) scale(0.95);
+    .stat-item-enhanced:hover::before {
+        left: 100%;
     }
 
-    .post-enter-active {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Hover effects for interactive elements */
-    .interactive-hover {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .interactive-hover:hover {
-        transform: translateY(-2px);
+    .stat-item-enhanced:hover {
+        transform: translateY(-5px) scale(1.05);
         box-shadow: var(--shadow-medium);
     }
 
-    /* Gradient text animation */
-    .gradient-text {
-        background: var(--gradient-primary);
-        background-size: 200% 200%;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        animation: gradientShift 3s ease-in-out infinite;
-    }
-
-    @keyframes gradientShift {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: white;
+        font-size: 1.5rem;
+        position: relative;
+        z-index: 2;
     }
 </style>
 {% endblock %}
@@ -615,25 +387,17 @@
             <div class="row align-items-center">
                 <div class="col-lg-6">
                     <div class="hero-content">
-                        <h1 class="fade-in gradient-text">Welcome to My Beautiful Blog</h1>
-                        <p class="lead fade-in">Discover inspiring stories, creative insights, and meaningful experiences. Join me on this wonderful journey of self-expression and connection.</p>
+                        <h1 class="fade-in">Welcome to My Personal Blog</h1>
+                        <p class="lead fade-in">Discover stories, insights, and experiences that inspire and inform. Join me on this journey of creativity and learning.</p>
                         <div class="fade-in">
-                            <a href="{% url 'myapp:all_posts' %}" class="btn-primary-custom">
-                                <span>Explore Stories</span>
-                                <i class="fas fa-sparkles"></i>
-                            </a>
-                            <a href="{% url 'myapp:about' %}" class="btn-outline-custom">
-                                <span>About Me</span>
-                                <i class="fas fa-heart"></i>
-                            </a>
+                            <a href="{% url 'myapp:all_posts' %}" class="btn-primary-custom">Explore Posts</a>
+                            <a href="{% url 'myapp:about' %}" class="btn-outline-custom">Learn More</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <div class="hero-image text-center fade-in">
-                        <div class="hero-icon">
-                            <i class="fas fa-feather-alt"></i>
-                        </div>
+                        <i class="fas fa-blog" style="font-size: 12rem; color: var(--primary-color); opacity: 0.1;"></i>
                     </div>
                 </div>
             </div>
@@ -645,7 +409,7 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-md-3">
-                    <div class="stat-item-enhanced fade-in interactive-hover">
+                    <div class="stat-item-enhanced fade-in">
                         <div class="stat-icon">
                             <i class="fas fa-file-alt"></i>
                         </div>
@@ -654,16 +418,16 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-item-enhanced fade-in interactive-hover">
+                    <div class="stat-item-enhanced fade-in">
                         <div class="stat-icon">
-                            <i class="fas fa-folder-heart"></i>
+                            <i class="fas fa-folder"></i>
                         </div>
                         <span class="stat-number">{{ total_categories|default:"0" }}</span>
                         <span class="stat-label">Categories</span>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-item-enhanced fade-in interactive-hover">
+                    <div class="stat-item-enhanced fade-in">
                         <div class="stat-icon">
                             <i class="fas fa-eye"></i>
                         </div>
@@ -672,7 +436,7 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-item-enhanced fade-in interactive-hover">
+                    <div class="stat-item-enhanced fade-in">
                         <div class="stat-icon">
                             <i class="fas fa-users"></i>
                         </div>
@@ -688,19 +452,16 @@
     {% if featured_posts %}
     <section class="featured-section">
         <div class="container">
-            <div class="section-title fade-in">
-                <span class="main-title">Featured Stories</span>
-                <span class="subtitle">~ handpicked just for you ~</span>
-            </div>
+            <h2 class="section-title fade-in">Featured Posts</h2>
             <div class="featured-posts-grid">
                 {% for post in featured_posts|slice:":3" %}
-                <article class="post-card-enhanced fade-in post-enter" data-post-slug="{{ post.slug }}">
+                <article class="post-card-enhanced fade-in" data-post-slug="{{ post.slug }}">
                     {% if post.featured_image %}
                     <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
                     {% else %}
                     <div class="card-img-top d-flex align-items-center justify-content-center" 
-                         style="background: var(--gradient-primary); color: white;">
-                        <i class="fas fa-image fa-4x"></i>
+                         style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white;">
+                        <i class="fas fa-image fa-3x"></i>
                     </div>
                     {% endif %}
                     
@@ -708,34 +469,24 @@
                     <div class="category-badge">{{ post.category.name }}</div>
                     {% endif %}
                     
-                    <div class="reading-indicator">
-                        <i class="fas fa-clock me-1"></i>{% widthratio post.content|wordcount 200 1 %} min read
-                    </div>
-                    
                     <div class="card-body">
                         <h3 class="card-title">
-                            <a href="{{ post.get_absolute_url }}">
+                            <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
                                 {{ post.title }}
                             </a>
                         </h3>
-                        <p class="card-text">{{ post.excerpt|default:post.content|truncatewords:25|striptags }}</p>
+                        <p class="card-text">{{ post.excerpt|default:post.content|truncatewords:20|striptags }}</p>
                         
                         <div class="card-meta">
                             <div class="meta-left">
-                                <div class="meta-item">
-                                    <i class="fas fa-user"></i>
-                                    <span>{{ post.author.username }}</span>
-                                </div>
-                                <div class="meta-item">
-                                    <i class="fas fa-calendar-heart"></i>
-                                    <span>{{ post.published_at|date:"M d, Y" }}</span>
-                                </div>
+                                <span><i class="fas fa-user me-1"></i>{{ post.author.username }}</span>
+                                <span><i class="fas fa-calendar me-1"></i>{{ post.published_at|date:"M d, Y" }}</span>
                             </div>
                             <div class="meta-right">
-                                <i class="fas fa-eye"></i>
-                                <span>{{ post.views }}</span>
+                                <i class="fas fa-eye me-1"></i>{{ post.views }}
                             </div>
                         </div>
+
                     </div>
                 </article>
                 {% endfor %}
@@ -744,11 +495,70 @@
     </section>
     {% endif %}
 
+    {% comment %} <!-- Recent Posts - Limited to 3 -->
+    <section id="recent-posts" class="py-5">
+        <div class="container">
+            <h2 class="section-title fade-in">Latest Posts</h2>
+            {% if posts %}
+            <div class="recent-posts-grid">
+                {% for post in posts|slice:":3" %}
+                <article class="post-card-enhanced fade-in" data-post-slug="{{ post.slug }}">
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}">
+                    {% else %}
+                    <div class="card-img-top d-flex align-items-center justify-content-center" 
+                         style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white;">
+                        <i class="fas fa-image fa-3x"></i>
+                    </div>
+                    {% endif %}
+                    
+                    {% if post.category %}
+                    <div class="category-badge">{{ post.category.name }}</div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                                {{ post.title }}
+                            </a>
+                        </h3>
+                        <p class="card-text">{{ post.excerpt|default:post.content|truncatewords:20|striptags }}</p>
+                        
+                        <div class="card-meta">
+                            <div class="meta-left">
+                                <span><i class="fas fa-user me-1"></i>{{ post.author.username }}</span>
+                                <span><i class="fas fa-calendar me-1"></i>{{ post.published_at|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="meta-right">
+                                <i class="fas fa-eye me-1"></i>{{ post.views }}
+                            </div>
+                        </div>
+                        
+                        <div class="reading-indicator">
+                            <i class="fas fa-clock me-1"></i>{% widthratio post.content|wordcount 200 1 %} min read
+                        </div>
+
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center fade-in">
+                <div style="font-size: 4rem; color: var(--border-light); margin-bottom: 2rem;">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3 style="color: var(--text-gray);">No Posts Yet</h3>
+                <p style="color: var(--text-gray);">The blog is just getting started. Check back soon for amazing content!</p>
+            </div>
+            {% endif %}
+        </div>
+    </section> {% endcomment %}
+
     <!-- View All Posts CTA -->
     <section class="view-all-section fade-in">
         <div class="container">
-            <h2>Discover More Magic</h2>
-            <p>Dive deeper into our collection of inspiring stories, creative insights, and meaningful conversations. There's a whole world of beautiful content waiting for you to explore!</p>
+            <h2>Discover More Stories</h2>
+            <p>Explore our complete collection of articles, tutorials, and insights. There's always something new to learn and discover.</p>
             <a href="{% url 'myapp:all_posts' %}" class="btn-view-all">
                 <span>View All Posts</span>
                 <i class="fas fa-arrow-right"></i>
@@ -760,15 +570,12 @@
     <section id="about" class="about-section">
         <div class="container">
             <div class="about-content fade-in">
-                <div class="section-title">
-                    <span class="main-title">Hello Beautiful!</span>
-                    <span class="subtitle">~ let me introduce myself ~</span>
-                </div>
-                <p>Welcome to my little corner of the internet where creativity meets inspiration! I'm passionate about sharing stories that touch the heart, spark imagination, and create meaningful connections between kindred spirits.</p>
-                <p>Through this beautiful platform, I aim to build a community of dreamers, creators, and believers who support each other's journeys and celebrate the magic in everyday moments.</p>
+                <h2 class="section-title">About Me</h2>
+                <p>Welcome to my personal blog where I share my thoughts, experiences, and insights on technology, life, and everything in between. I'm passionate about creating meaningful content that resonates with readers and sparks interesting conversations.</p>
+                <p>Through this platform, I aim to connect with like-minded individuals, share knowledge, and build a community of learners and creators.</p>
                 <div class="text-center mt-4">
                     <a href="{% url 'myapp:about' %}" class="btn-primary-custom">
-                        <span><i class="fas fa-sparkles me-2"></i>Get to Know Me</span>
+                        <i class="fas fa-user me-2"></i>Learn More About Me
                     </a>
                 </div>
             </div>
@@ -779,54 +586,25 @@
     <section class="newsletter-section newsletter-enhanced">
         <div class="container">
             <div class="text-center">
-                <div class="section-title">
-                    <span class="main-title">Stay in Touch</span>
-                    <span class="subtitle">~ join our beautiful community ~</span>
-                </div>
-                <p class="lead mb-4">Subscribe to receive love letters filled with the latest stories, creative inspiration, and exclusive content delivered straight to your heart.</p>
+                <h2 class="section-title text-white mb-4">Stay Updated</h2>
+                <p class="lead mb-4">Subscribe to my newsletter and never miss a post. Get the latest articles delivered straight to your inbox.</p>
                 <form method="post" action="{% url 'myapp:subscribe_newsletter' %}" class="newsletter-form">
                     {% csrf_token %}
                     <div class="input-group">
-                        <input type="email" name="email" class="form-control" placeholder="Enter your beautiful email address" required>
-                        <button class="btn" type="submit">
-                            <i class="fas fa-heart me-2"></i>Subscribe
+                        <input type="email" name="email" class="form-control" placeholder="Enter your email address" required>
+                        <button class="btn btn-light" type="submit">
+                            <i class="fas fa-paper-plane me-2"></i>Subscribe
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </section>
-
-    <!-- Empty State (if no posts) -->
-    {% if not featured_posts and not posts %}
-    <section class="empty-state fade-in">
-        <div class="container">
-            <div class="empty-state-icon">
-                <i class="fas fa-feather-alt"></i>
-            </div>
-            <h3>Coming Soon!</h3>
-            <p>This beautiful blog is just getting started. Amazing stories and inspiring content are on their way. Check back soon for a delightful reading experience!</p>
-            <a href="{% url 'myapp:about' %}" class="btn-primary-custom">
-                <span>Learn More About This Journey</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-    </section>
-    {% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Reading progress bar
-    const progressBar = document.getElementById('reading-progress');
-    
-    window.addEventListener('scroll', () => {
-        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const scrollProgress = window.pageYOffset / scrollHeight;
-        progressBar.style.width = `${scrollProgress * 100}%`;
-    });
-
     // Enhanced post card interactions
     document.querySelectorAll('.post-card-enhanced').forEach(card => {
         card.addEventListener('click', function(e) {
@@ -839,93 +617,28 @@ document.addEventListener('DOMContentLoaded', function() {
             if (postSlug) {
                 const postUrl = `/post/${postSlug}/`;
                 
-                // Add magical loading effect
+                // Add loading state
                 this.style.opacity = '0.8';
                 this.style.transform = 'scale(0.98)';
                 
-                // Create sparkle effect
-                createMagicalSparkles(this);
-                
-                // Navigate after visual feedback
+                // Navigate after a short delay for visual feedback
                 setTimeout(() => {
                     window.location.href = postUrl;
-                }, 300);
+                }, 150);
             }
         });
 
         // Enhanced hover effects
         card.addEventListener('mouseenter', function() {
-            const readingIndicator = this.querySelector('.reading-indicator');
-            if (readingIndicator) {
-                readingIndicator.style.transform = 'translateY(-8px) scale(1.05)';
-            }
-            
-            // Add subtle glow effect
-            this.style.boxShadow = '0 25px 50px rgba(217, 70, 239, 0.25)';
+            this.querySelector('.reading-indicator').style.transform = 'translateY(-5px)';
         });
 
         card.addEventListener('mouseleave', function() {
-            const readingIndicator = this.querySelector('.reading-indicator');
-            if (readingIndicator) {
-                readingIndicator.style.transform = 'translateY(0) scale(1)';
-            }
+            this.querySelector('.reading-indicator').style.transform = 'translateY(0)';
         });
     });
 
-    // Magical sparkle effect function
-    function createMagicalSparkles(element) {
-        const colors = ['#d946ef', '#06b6d4', '#6366f1', '#f59e0b'];
-        
-        for (let i = 0; i < 8; i++) {
-            setTimeout(() => {
-                const sparkle = document.createElement('div');
-                sparkle.style.cssText = `
-                    position: absolute;
-                    width: 6px;
-                    height: 6px;
-                    background: ${colors[Math.floor(Math.random() * colors.length)]};
-                    border-radius: 50%;
-                    pointer-events: none;
-                    animation: magicalSparkle 1.5s ease-out forwards;
-                    left: ${Math.random() * 100}%;
-                    top: ${Math.random() * 100}%;
-                    z-index: 1000;
-                    box-shadow: 0 0 10px currentColor;
-                `;
-                
-                element.style.position = 'relative';
-                element.appendChild(sparkle);
-                
-                setTimeout(() => {
-                    if (sparkle.parentNode) {
-                        sparkle.remove();
-                    }
-                }, 1500);
-            }, i * 50);
-        }
-    }
-
-    // Add magical sparkle animation keyframes
-    const magicalStyle = document.createElement('style');
-    magicalStyle.textContent = `
-        @keyframes magicalSparkle {
-            0% {
-                opacity: 0;
-                transform: scale(0) rotate(0deg) translateY(0);
-            }
-            50% {
-                opacity: 1;
-                transform: scale(1) rotate(180deg) translateY(-20px);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0) rotate(360deg) translateY(-40px);
-            }
-        }
-    `;
-    document.head.appendChild(magicalStyle);
-
-    // Staggered animation for elements
+    // Intersection Observer for animations
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -937,29 +650,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
-                    entry.target.classList.add('visible');
-                }, index * 150);
+                }, index * 100);
                 observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
 
-    // Apply staggered animations to all fade-in elements
+    // Apply animations to all fade-in elements
     document.querySelectorAll('.fade-in').forEach((el, index) => {
         el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = `all 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1}s`;
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `all 0.6s cubic-bezier(0.23, 1, 0.320, 1) ${index * 0.1}s`;
         observer.observe(el);
     });
 
-    // Enhanced stats counter animation with easing
+    // Stats counter animation
     const stats = document.querySelectorAll('.stat-number');
     const statsObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const target = entry.target;
                 const finalValue = parseInt(target.textContent) || 0;
-                animateCounterWithEasing(target, 0, finalValue);
+                animateCounter(target, 0, finalValue);
                 statsObserver.unobserve(target);
             }
         });
@@ -967,265 +679,134 @@ document.addEventListener('DOMContentLoaded', function() {
 
     stats.forEach(stat => statsObserver.observe(stat));
 
-    function animateCounterWithEasing(element, start, end) {
-        const duration = 2500;
+    function animateCounter(element, start, end) {
+        const duration = 2000;
         const startTime = performance.now();
         
         function updateCounter(currentTime) {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
-            // Ease out cubic function for smooth animation
-            const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-            const current = Math.floor(start + (end - start) * easeOutCubic);
+            const current = Math.floor(start + (end - start) * progress);
             
             element.textContent = current;
             
             if (progress < 1) {
                 requestAnimationFrame(updateCounter);
-            } else {
-                // Add a little celebration effect when counter finishes
-                element.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    element.style.transform = 'scale(1)';
-                }, 200);
             }
         }
         
         requestAnimationFrame(updateCounter);
     }
 
-    // Enhanced newsletter form submission with beautiful feedback
+    // Smooth scrolling for internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Enhanced newsletter form submission
     const newsletterForm = document.querySelector('.newsletter-form');
     if (newsletterForm) {
         newsletterForm.addEventListener('submit', function(e) {
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             
-            // Beautiful loading animation
-            submitBtn.innerHTML = '<i class="fas fa-heart fa-beat me-2"></i>Sending Love...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Subscribing...';
             submitBtn.disabled = true;
-            submitBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d946ef)';
             
-            // Create floating hearts effect
-            createFloatingHearts(submitBtn);
-            
-            // Reset after form submission
+            // The form will submit normally, but we provide visual feedback
             setTimeout(() => {
-                submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Subscribed!';
-                submitBtn.style.background = 'linear-gradient(135deg, #10b981, #06b6d4)';
-                
-                setTimeout(() => {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    submitBtn.style.background = '';
-                }, 2000);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }, 3000);
         });
     }
 
-    function createFloatingHearts(element) {
-        for (let i = 0; i < 6; i++) {
-            setTimeout(() => {
-                const heart = document.createElement('div');
-                heart.innerHTML = '💖';
-                heart.style.cssText = `
-                    position: absolute;
-                    font-size: 20px;
-                    pointer-events: none;
-                    animation: floatingHearts 2s ease-out forwards;
-                    left: ${Math.random() * 100}%;
-                    top: 50%;
-                    z-index: 1001;
-                `;
-                
-                element.style.position = 'relative';
-                element.appendChild(heart);
-                
-                setTimeout(() => {
-                    if (heart.parentNode) {
-                        heart.remove();
-                    }
-                }, 2000);
-            }, i * 200);
-        }
-    }
+    // Reading time calculation enhancement
+    document.querySelectorAll('.reading-indicator').forEach(indicator => {
+        const card = indicator.closest('.post-card-enhanced');
+        const contentText = card.querySelector('.card-text').textContent;
+        const wordCount = contentText.split(/\s+/).length;
+        const readingTime = Math.ceil(wordCount / 200); // 200 words per minute
+        
+        indicator.innerHTML = `<i class="fas fa-clock me-1"></i>${readingTime} min read`;
+    });
 
-    // Add floating hearts animation
-    const heartsStyle = document.createElement('style');
-    heartsStyle.textContent = `
-        @keyframes floatingHearts {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(0.8);
-            }
-            50% {
-                opacity: 1;
-                transform: translateY(-30px) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-60px) scale(0.5);
-            }
-        }
-    `;
-    document.head.appendChild(heartsStyle);
-
-    // Parallax effect for hero section and floating elements
+    // Parallax effect for hero section
     window.addEventListener('scroll', () => {
         const scrolled = window.pageYOffset;
-        
-        // Hero parallax
         const hero = document.querySelector('.hero-section');
         if (hero && scrolled < window.innerHeight) {
-            hero.style.transform = `translateY(${scrolled * 0.4}px)`;
-        }
-
-        // Floating icon rotation
-        const heroIcon = document.querySelector('.hero-icon');
-        if (heroIcon) {
-            heroIcon.style.transform = `rotate(${scrolled * 0.1}deg)`;
+            hero.style.transform = `translateY(${scrolled * 0.3}px)`;
         }
     });
 
-    // Interactive hover effects for stat items
-    document.querySelectorAll('.stat-item-enhanced').forEach(item => {
-        item.addEventListener('mouseenter', function() {
-            const icon = this.querySelector('.stat-icon');
-            if (icon) {
-                icon.style.transform = 'rotate(360deg) scale(1.2)';
-                icon.style.boxShadow = '0 0 30px rgba(217, 70, 239, 0.6)';
+    // Auto-hide messages after 5 seconds
+    setTimeout(() => {
+        document.querySelectorAll('.alert').forEach(alert => {
+            if (window.bootstrap && window.bootstrap.Alert) {
+                const bsAlert = new window.bootstrap.Alert(alert);
+                bsAlert.close();
+            } else {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
             }
         });
+    }, 5000);
 
-        item.addEventListener('mouseleave', function() {
-            const icon = this.querySelector('.stat-icon');
-            if (icon) {
-                icon.style.transform = 'rotate(0deg) scale(1)';
-                icon.style.boxShadow = 'var(--shadow-colored)';
-            }
-        });
-    });
-
-    // Add gentle floating animation to various elements
-    const floatingElements = document.querySelectorAll('.stat-item-enhanced, .post-card-enhanced');
-    floatingElements.forEach((el, index) => {
-        el.style.animation = `gentleFloat ${3 + (index % 2)}s ease-in-out infinite`;
-        el.style.animationDelay = `${index * 0.5}s`;
-    });
-
-    // Add gentle floating animation keyframes
-    const floatingStyle = document.createElement('style');
-    floatingStyle.textContent = `
-        @keyframes gentleFloat {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-5px);
-            }
-        }
-    `;
-    document.head.appendChild(floatingStyle);
-
-    // Keyboard shortcuts with beautiful feedback
+    // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
-        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-            if (e.key === 'h') {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                showKeyboardFeedback('🏠 Home Sweet Home');
+        // Press 'h' to go to top
+        if (e.key === 'h' && !e.ctrlKey && !e.metaKey && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Press 'b' to go to blog posts
+        if (e.key === 'b' && !e.ctrlKey && !e.metaKey && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            const allPostsLink = document.querySelector('a[href*="all_posts"], a[href*="blog"]');
+            if (allPostsLink) {
+                window.location.href = allPostsLink.href;
             }
-            
-            if (e.key === 'b') {
-                e.preventDefault();
-                const blogLink = document.querySelector('a[href*="all_posts"], a[href*="blog"]');
-                if (blogLink) {
-                    window.location.href = blogLink.href;
-                    showKeyboardFeedback('📖 Off to the Blog!');
+        }
+    });
+
+    // Add loading states for better UX
+    document.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A' && !e.target.getAttribute('href').startsWith('#')) {
+            e.target.style.opacity = '0.7';
+        }
+    });
+
+    // Performance: Lazy loading for images if Intersection Observer is supported
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.classList.add('loaded');
+                        imageObserver.unobserve(img);
+                    }
                 }
-            }
-        }
-    });
+            });
+        });
 
-    function showKeyboardFeedback(message) {
-        const feedback = document.createElement('div');
-        feedback.textContent = message;
-        feedback.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--gradient-primary);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 25px;
-            font-weight: 600;
-            z-index: 1002;
-            animation: keyboardFeedback 2s ease-out forwards;
-            box-shadow: var(--shadow-large);
-        `;
-        
-        document.body.appendChild(feedback);
-        
-        setTimeout(() => {
-            if (feedback.parentNode) {
-                feedback.remove();
-            }
-        }, 2000);
+        // Apply to any images with data-src attribute
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            imageObserver.observe(img);
+        });
     }
-
-    // Add keyboard feedback animation
-    const keyboardStyle = document.createElement('style');
-    keyboardStyle.textContent = `
-        @keyframes keyboardFeedback {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.8);
-            }
-            20% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.1);
-            }
-            80% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.9);
-            }
-        }
-    `;
-    document.head.appendChild(keyboardStyle);
-
-    // Enhanced scroll-based navbar updates
-    let lastScroll = 0;
-    window.addEventListener('scroll', () => {
-        const currentScroll = window.pageYOffset;
-        const navbar = document.querySelector('.navbar');
-        
-        if (navbar) {
-            if (currentScroll > 100) {
-                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-                navbar.style.boxShadow = '0 8px 32px rgba(217, 70, 239, 0.2)';
-                navbar.style.backdropFilter = 'blur(25px)';
-            } else {
-                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-                navbar.style.boxShadow = '0 8px 32px rgba(217, 70, 239, 0.1)';
-                navbar.style.backdropFilter = 'blur(20px)';
-            }
-            
-            // Hide/show navbar on scroll
-            if (currentScroll > lastScroll && currentScroll > 200) {
-                navbar.style.transform = 'translateY(-100%)';
-            } else {
-                navbar.style.transform = 'translateY(0)';
-            }
-        }
-        
-        lastScroll = currentScroll;
-    });
 });
 </script>
 {% endblock %}
