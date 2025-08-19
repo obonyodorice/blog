@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils import timezone
+from django.conf import settings
 
 # Safe imports
 try:
@@ -106,20 +107,36 @@ class Post(models.Model):
 
 class Comment(models.Model):
     """Blog post comments"""
-    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey("myapp.Post", related_name="comments", on_delete=models.CASCADE)
+
+    # Author (optional, for admins/superusers)
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    # Guest fields (for non-logged-in users)
+    guest_name = models.CharField(max_length=100, blank=True, null=True)
+    guest_email = models.EmailField(blank=True, null=True)
+
     content = models.TextField()
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
+    parent = models.ForeignKey(
+        "self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies"
+    )
     is_approved = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
-        ordering = ['created_at']
-    
+        ordering = ["created_at"]
+
     def __str__(self):
-        return f'Comment by {self.author.username} on {self.post.title}'
-    
+        if self.author:
+            return f"Comment by {self.author.username} on {self.post.title}"
+        return f"Comment by {self.guest_name or 'Guest'} on {self.post.title}"
+
     def get_replies(self):
         return Comment.objects.filter(parent=self, is_approved=True)
 
