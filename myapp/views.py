@@ -2,18 +2,15 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.db.models import Q, Count, F
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.utils import timezone
-from django.template.loader import render_to_string
 from .models import Post, Category, Comment, Like, Newsletter
 from .forms import PostForm, CommentForm, NewsletterForm
 from django.db.models import Count, Sum
-from datetime import datetime
 
 class HomeView(ListView):
     """Homepage with featured and recent posts"""
@@ -171,52 +168,70 @@ class SearchView(ListView):
         context['query'] = self.request.GET.get('q', '')
         return context
 
-@login_required
+from django.views.decorators.http import require_POST
+
 @require_POST
 def add_comment(request, slug):
-    """Add comment to post"""
+    """Add comment to post (supports guests)"""
     post = get_object_or_404(Post, slug=slug, status='published')
-    form = CommentForm(request.POST)
-    
+    form = CommentForm(request.POST, user=request.user)
+
     if form.is_valid():
         comment = form.save(commit=False)
         comment.post = post
-        comment.author = request.user
-        
+
+        if request.user.is_authenticated:
+            comment.author = request.user  # Logged-in user
+        else:
+            # Guest user – require name & email
+            comment.guest_name = form.cleaned_data.get('guest_name')
+            comment.guest_email = form.cleaned_data.get('guest_email')
+
         # Handle reply to comment
         parent_id = request.POST.get('parent_id')
         if parent_id:
             comment.parent = get_object_or_404(Comment, id=parent_id)
-        
+
         comment.save()
         messages.success(request, 'Comment added successfully!')
     else:
         messages.error(request, 'Error adding comment. Please try again.')
-    
+
     return redirect('myapp:post_detail', slug=slug)
 
-@login_required
+
+from django.views.decorators.http import require_POST
+
 @require_POST
 def like_post(request):
-    """AJAX view to like/unlike posts"""
+    """AJAX view to like/unlike posts (supports guests via session)"""
     post_id = request.POST.get('post_id')
     post = get_object_or_404(Post, id=post_id, status='published')
-    
-    like, created = Like.objects.get_or_create(
-        user=request.user,
-        post=post
-    )
-    
-    if not created:
-        like.delete()
-        liked = False
+
+    if request.user.is_authenticated:
+        # Logged-in user
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        if not created:
+            like.delete()
+            liked = False
+        else:
+            liked = True
     else:
-        liked = True
-    
+        # Guest user – use session
+        liked_posts = request.session.get('liked_posts', [])
+        if post_id in liked_posts:
+            liked_posts.remove(post_id)
+            liked = False
+        else:
+            liked_posts.append(post_id)
+            liked = True
+        request.session['liked_posts'] = liked_posts
+
     return JsonResponse({
         'liked': liked,
-        'likes_count': post.likes.count()
+        'likes_count': post.likes.count() + len(request.session.get('liked_posts', []))
     })
+
 
 def subscribe_newsletter(request):
     """Newsletter subscription"""
@@ -296,130 +311,30 @@ def custom_404_view(request, exception=None):
     """Custom 404 error page"""
     return render(request, '404.html', status=404)
 
-# # You might also want these utility views:
-
-# class PostsByYearView(ListView):
-#     """Posts by year archive"""
-#     model = Post
-#     template_name = 'myapp/posts_by_year.html'
-#     context_object_name = 'posts'
-#     paginate_by = 10
+@require_POST 
+def ajax_subscribe_newsletter(request):
+    """AJAX newsletter subscription"""
+    form = NewsletterForm(request.POST)
     
-#     def get_queryset(self):
-#         year = self.kwargs['year']
-#         return Post.objects.filter(
-#             status='published',
-#             published_at__year=year
-#         ).select_related('author', 'category').order_by('-published_at')
-    
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['year'] = self.kwargs['year']
-#         return context
-
-# class PostsByMonthView(ListView):
-#     """Posts by month archive"""
-#     model = Post
-#     template_name = 'myapp/posts_by_month.html'
-#     context_object_name = 'posts'
-#     paginate_by = 10
-    
-#     def get_queryset(self):
-#         year = self.kwargs['year']
-#         month = self.kwargs['month']
-#         return Post.objects.filter(
-#             status='published',
-#             published_at__year=year,
-#             published_at__month=month
-#         ).select_related('author', 'category').order_by('-published_at')
-    
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['year'] = self.kwargs['year']
-#         context['month'] = self.kwargs['month']
-#         context['month_name'] = datetime(int(self.kwargs['year']), int(self.kwargs['month']), 1).strftime('%B')
-#         return context
-
-# # AJAX views for better UX
-# @require_POST
-# def load_more_posts(request):
-#     """AJAX view to load more posts (infinite scroll)"""
-#     page = request.POST.get('page', 2)
-#     category = request.POST.get('category', '')
-#     sort = request.POST.get('sort', 'latest')
-    
-#     posts = Post.objects.filter(status='published')
-    
-#     if category:
-#         posts = posts.filter(category__slug=category)
-    
-#     if sort == 'latest':
-#         posts = posts.order_by('-published_at')
-#     elif sort == 'popular':
-#         posts = posts.annotate(comment_count=Count('comments')).order_by('-comment_count')
-#     elif sort == 'views':
-#         posts = posts.order_by('-views')
-    
-#     paginator = Paginator(posts, 12)
-    
-#     try:
-#         posts_page = paginator.page(page)
-#         posts_html = render_to_string('myapp/partials/post_grid.html', {
-#             'posts': posts_page,
-#             'request': request
-#         })
+    if form.is_valid():
+        email = form.cleaned_data['email']
+        newsletter, created = Newsletter.objects.get_or_create(email=email)
         
-#         return JsonResponse({
-#             'html': posts_html,
-#             'has_next': posts_page.has_next(),
-#             'next_page': posts_page.next_page_number() if posts_page.has_next() else None
-#         })
-#     except:
-#         return JsonResponse({'html': '', 'has_next': False})
-
-# # Add this to handle the newsletter form from templates
-# @require_POST 
-# def ajax_subscribe_newsletter(request):
-#     """AJAX newsletter subscription"""
-#     form = NewsletterForm(request.POST)
-    
-#     if form.is_valid():
-#         email = form.cleaned_data['email']
-#         newsletter, created = Newsletter.objects.get_or_create(email=email)
-        
-#         if created:
-#             return JsonResponse({
-#                 'success': True, 
-#                 'message': 'Successfully subscribed to newsletter!'
-#             })
-#         else:
-#             return JsonResponse({
-#                 'success': True, 
-#                 'message': 'You are already subscribed!'
-#             })
-#     else:
-#         return JsonResponse({
-#             'success': False, 
-#             'message': 'Please enter a valid email address.'
-#         })
-
-# # Context processor to make common data available in all templates
-# def blog_context(request):
-#     """Context processor for common blog data"""
-#     return {
-#         'recent_posts': Post.objects.filter(status='published')
-#                            .select_related('author', 'category')[:5],
-#         'popular_posts': Post.objects.filter(status='published')
-#                             .order_by('-views')[:5],
-#         'categories': Category.objects.annotate(
-#             post_count=Count('post', filter=Q(post__status='published'))
-#         ).filter(post_count__gt=0).order_by('name'),
-#         'site_stats': {
-#             'total_posts': Post.objects.filter(status='published').count(),
-#             'total_views': Post.objects.filter(status='published').aggregate(
-#                 total=Sum('views'))['total'] or 0,
-#         }
-#     }
+        if created:
+            return JsonResponse({
+                'success': True, 
+                'message': 'Successfully subscribed to newsletter!'
+            })
+        else:
+            return JsonResponse({
+                'success': True, 
+                'message': 'You are already subscribed!'
+            })
+    else:
+        return JsonResponse({
+            'success': False, 
+            'message': 'Please enter a valid email address.'
+        })
 
 def about_view(request):
     """About page view"""
