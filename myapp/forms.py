@@ -20,6 +20,11 @@ class PostForm(forms.ModelForm):
 
 class CommentForm(forms.ModelForm):
     """Form for adding comments"""
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)  # remove `user` from kwargs
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = Comment
         fields = ['content']
@@ -30,6 +35,7 @@ class CommentForm(forms.ModelForm):
                 'placeholder': 'Write your comment here...'
             })
         }
+
 
 class NewsletterForm(forms.ModelForm):
     """Newsletter subscription form"""
