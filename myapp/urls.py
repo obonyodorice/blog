@@ -9,10 +9,10 @@ urlpatterns = [
     # Existing URLs
     path('', views.HomeView.as_view(), name='home'),
     path('posts/', views.AllPostsView.as_view(), name='all_posts'),
+    path('post/create/', views.PostCreateView.as_view(), name='post_create'),
     path('post/<slug:slug>/', views.PostDetailView.as_view(), name='post_detail'),
     path('category/<slug:slug>/', views.CategoryPostsView.as_view(), name='category_posts'),
     path('search/', views.SearchView.as_view(), name='search'),
-    path('post/create/', views.PostCreateView.as_view(), name='post_create'),
     
     # New URLs you need to add
     path('about/', views.about_view, name='about'),
