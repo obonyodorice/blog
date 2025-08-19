@@ -270,36 +270,66 @@
                         </button>
                     </form>
                 </div>
+            </div>
                 {% comment %} {% else %}
                 <div class="comment-item mb-4 text-center">
                     <p class="mb-3">Please <a href="{% url 'members:login' %}">login</a> to leave a comment.</p>
                 </div>
                 {% endif %} {% endcomment %}
                 
-                <!-- Comments List -->
+            <!-- Comments List -->
+            <div class="comments-section">
                 {% for comment in comments %}
                 <div class="comment-item">
                     <div class="comment-header">
                         <div class="comment-avatar">
-                            {{ comment.author.username|first|upper }}
+                            {% if comment.guest_name %}
+                                {{ comment.guest_name|first|upper }}
+                            {% elif comment.author %}
+                                {{ comment.author.username|first|upper }}
+                            {% else %}
+                                G
+                            {% endif %}
                         </div>
                         <div>
-                            <h6 class="mb-0">{{ comment.author.get_full_name|default:comment.author.username }}</h6>
-                            <small class="text-muted">{{ comment.created_at|date:"F d, Y \a\t g:i A" }}</small>
+                            <h6 class="mb-0">
+                                {% if comment.author %}
+                                    {{ comment.author.get_full_name|default:comment.author.username }}
+                                {% else %}
+                                    {{ comment.guest_name }}
+                                {% endif %}
+                            </h6>
+                            <small class="text-muted">
+                                {{ comment.created_at|date:"F d, Y \\a\\t g:i A" }}
+                            </small>
                         </div>
                     </div>
                     <p class="mb-0">{{ comment.content|linebreaks }}</p>
-                    
+
                     <!-- Comment Replies -->
                     {% for reply in comment.replies.all %}
                     <div class="comment-reply">
                         <div class="comment-header">
-                            <div class="comment-avatar" style="width: 32px; height: 32px; font-size: 0.875rem;">
-                                {{ reply.author.username|first|upper }}
+                            <div class="comment-avatar">
+                                {% if reply.guest_name %}
+                                    {{ reply.guest_name|first|upper }}
+                                {% elif reply.author %}
+                                    {{ reply.author.username|first|upper }}
+                                {% else %}
+                                    G
+                                {% endif %}
                             </div>
                             <div>
-                                <h6 class="mb-0" style="font-size: 0.9rem;">{{ reply.author.get_full_name|default:reply.author.username }}</h6>
-                                <small class="text-muted">{{ reply.created_at|date:"F d, Y \a\t g:i A" }}</small>
+                                <h6 class="mb-0">
+                                    {% if reply.author %}
+                                        {{ reply.author.get_full_name|default:reply.author.username }}
+                                    {% else %}
+                                        {{ reply.guest_name }}
+                                    {% endif %}
+                                </h6>
+                                <small class="text-muted">
+                                    {{ reply.created_at|date:"F d, Y \\a\\t g:i A" }}
+                                </small>
                             </div>
                         </div>
                         <p class="mb-0">{{ reply.content|linebreaks }}</p>
@@ -313,7 +343,8 @@
                 </div>
                 {% endfor %}
             </div>
-        </div>
+        </div>        
+
         
         <!-- Sidebar -->
         <div class="col-lg-4">
