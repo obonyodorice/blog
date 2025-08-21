@@ -16,7 +16,6 @@ class PostAdmin(admin.ModelAdmin):
     actions = ['make_featured', 'make_not_featured', 'reset_featured_posts']
     
     def featured_badge(self, obj):
-        """Display a nice badge for featured posts"""
         if obj.is_featured:
             return format_html(
                 '<span style="background: #ffc107; color: #212529; padding: 2px 6px; border-radius: 3px; font-size: 11px;">⭐ FEATURED</span>'
@@ -27,23 +26,18 @@ class PostAdmin(admin.ModelAdmin):
     featured_badge.short_description = 'Featured Status'
     
     def make_featured(self, request, queryset):
-        """Action to make selected posts featured"""
         count = queryset.update(is_featured=True)
         self.message_user(request, f'{count} posts marked as featured.')
     make_featured.short_description = "Mark selected posts as featured"
     
     def make_not_featured(self, request, queryset):
-        """Action to remove featured status"""
         count = queryset.update(is_featured=False)
         self.message_user(request, f'{count} posts removed from featured.')
     make_not_featured.short_description = "Remove featured status from selected posts"
     
     def reset_featured_posts(self, request, queryset):
-        """Reset all featured posts and feature top 3 by views"""
-        # Reset all
+
         Post.objects.all().update(is_featured=False)
-        
-        # Feature top 3 by views
         top_posts = Post.objects.filter(status='published').order_by('-views')[:3]
         for post in top_posts:
             post.is_featured = True
@@ -55,7 +49,6 @@ class PostAdmin(admin.ModelAdmin):
         )
     reset_featured_posts.short_description = "Reset and auto-select top 3 featured posts"
 
-# Keep your other admin classes as they are
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'created_at')
