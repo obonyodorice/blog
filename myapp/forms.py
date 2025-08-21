@@ -2,7 +2,6 @@ from django import forms
 from .models import Post, Comment, Newsletter
 
 class PostForm(forms.ModelForm):
-    """Form for creating/editing posts"""
     class Meta:
         model = Post
         fields = [
@@ -19,7 +18,6 @@ class PostForm(forms.ModelForm):
         }
 
 class CommentForm(forms.ModelForm):
-    """Form for adding comments"""
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)  # remove `user` from kwargs
