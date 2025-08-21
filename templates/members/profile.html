@@ -245,7 +245,8 @@
                                     <span>Average per Post:</span>
                                     <strong>
                                         {% if total_posts > 0 %}
-                                            {{ total_views|div:total_posts|floatformat:0 }}
+                                            <strong>{{ average_views|floatformat:0 }}</strong>
+
                                         {% else %}
                                             0
                                         {% endif %}

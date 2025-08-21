@@ -102,14 +102,17 @@
                         <hr class="my-4">
                         
                         <!-- Sign Up Link -->
+                        {% if user.is_superuser %}
                         <div class="text-center">
                             <p class="text-muted mb-0">
                                 Don't have an account? 
+
                                 <a href="{% url 'members:signup' %}" class="text-decoration-none fw-semibold" style="color: var(--primary-color);">
                                     Create one here
                                 </a>
                             </p>
                         </div>
+                        {% endif %}
 
                         <!-- Social Login (Optional) -->
                         <div class="text-center mt-4">

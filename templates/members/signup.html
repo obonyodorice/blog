@@ -105,7 +105,8 @@
                         </form>
 
                         <hr class="my-4">
-                        
+
+                        {% if user.is_superuser %}
                         <div class="text-center">
                             <p class="text-muted mb-0">
                                 Already have an account? 
@@ -114,6 +115,7 @@
                                 </a>
                             </p>
                         </div>
+                        {% endif %}
 
                         <div class="text-center mt-4">
                             <small class="text-muted">
