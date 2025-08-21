@@ -1,4 +1,3 @@
-# myapp/models.py - Simplified version without taggit
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -16,7 +15,7 @@ except ImportError:
 User = get_user_model()
 
 class Category(models.Model):
-    """Blog post categories"""
+
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField(blank=True)
@@ -38,7 +37,7 @@ class Category(models.Model):
         super().save(*args, **kwargs)
 
 class Post(models.Model):
-    """Blog post model"""
+
     STATUS_CHOICES = [
         ('draft', 'Draft'),
         ('published', 'Published'),
@@ -49,8 +48,6 @@ class Post(models.Model):
     slug = models.SlugField(max_length=200, unique=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    
-    # Use CKEditor if available, otherwise regular TextField
     content = RichTextUploadingField() if CKEDITOR_AVAILABLE else models.TextField()
     
     excerpt = models.TextField(max_length=300, blank=True)
@@ -61,8 +58,7 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateTimeField(null=True, blank=True)
     views = models.PositiveIntegerField(default=0)
-    
-    # Simple tags as CharField instead of TaggableManager
+
     tags = models.CharField(max_length=200, blank=True, help_text="Enter tags separated by commas")
     
     class Meta:
@@ -80,7 +76,7 @@ class Post(models.Model):
         return reverse('myapp:post_detail', kwargs={'slug': self.slug})
     
     def get_tags_list(self):
-        """Return tags as a list"""
+
         if self.tags:
             return [tag.strip() for tag in self.tags.split(',') if tag.strip()]
         return []
@@ -88,12 +84,10 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
-        
-        # Set published_at when status changes to published
+
         if self.status == 'published' and not self.published_at:
             self.published_at = timezone.now()
         
-        # Generate excerpt if not provided
         if not self.excerpt and self.content:
             from django.utils.html import strip_tags
             self.excerpt = strip_tags(self.content)[:297] + '...'
@@ -106,10 +100,9 @@ class Post(models.Model):
         self.save(update_fields=['views'])
 
 class Comment(models.Model):
-    """Blog post comments"""
+
     post = models.ForeignKey("myapp.Post", related_name="comments", on_delete=models.CASCADE)
 
-    # Author (optional, for admins/superusers)
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -117,7 +110,6 @@ class Comment(models.Model):
         blank=True
     )
 
-    # Guest fields (for non-logged-in users)
     guest_name = models.CharField(max_length=100, blank=True, null=True)
     guest_email = models.EmailField(blank=True, null=True)
 
@@ -141,7 +133,6 @@ class Comment(models.Model):
         return Comment.objects.filter(parent=self, is_approved=True)
 
 class Like(models.Model):
-    """Post likes system"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -153,7 +144,6 @@ class Like(models.Model):
         return f'{self.user.username} likes {self.post.title}'
 
 class Newsletter(models.Model):
-    """Newsletter subscription"""
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     subscribed_at = models.DateTimeField(auto_now_add=True)
