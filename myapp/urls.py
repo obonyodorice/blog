@@ -18,6 +18,6 @@ urlpatterns = [
 
     path('subscribe/', views.subscribe_newsletter, name='subscribe_newsletter'),
     path('like/', views.like_post, name='like_post'),
-    path('comment/<slug:slug>/', views.add_comment, name='add_comment'),
+    path('post/<slug:slug>/comment/', views.add_comment, name='add_comment'),
 
 ]
