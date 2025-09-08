@@ -99,6 +99,7 @@
         padding: 1.5rem;
         margin-bottom: 1.5rem;
         border: 1px solid var(--border-light);
+        position: relative;
     }
     
     .comment-header {
@@ -118,6 +119,7 @@
         justify-content: center;
         color: white;
         font-weight: 600;
+        flex-shrink: 0;
     }
     
     .comment-reply {
@@ -125,6 +127,142 @@
         margin-top: 1rem;
         border-left: 3px solid var(--primary-color);
         padding-left: 1rem;
+    }
+    
+    .comment-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-light);
+    }
+    
+    .reply-btn {
+        background: none;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .reply-btn:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .reply-form {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: var(--background-cream);
+        border-radius: 0.5rem;
+        border: 1px solid var(--border-light);
+        display: none;
+    }
+    
+    .reply-form.active {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .reply-form-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+    
+    .guest-form-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .guest-form-fields input {
+        padding: 0.5rem;
+        border: 1px solid var(--border-light);
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .reply-content {
+        width: 100%;
+        min-height: 80px;
+        padding: 0.75rem;
+        border: 1px solid var(--border-light);
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        resize: vertical;
+        margin-bottom: 1rem;
+    }
+    
+    .reply-submit-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-submit-reply {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-submit-reply:hover {
+        background-color: var(--primary-dark);
+    }
+    
+    .btn-cancel-reply {
+        background: none;
+        border: 1px solid var(--text-gray);
+        color: var(--text-gray);
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel-reply:hover {
+        background-color: var(--text-gray);
+        color: white;
+    }
+    
+    .comment-role-badge {
+        background-color: var(--primary-color);
+        color: white;
+        font-size: 0.75rem;
+        padding: 0.125rem 0.5rem;
+        border-radius: 0.25rem;
+        margin-left: 0.5rem;
+    }
+    
+    .guest-badge {
+        background-color: var(--secondary-color);
     }
     
     .related-posts-card {
@@ -165,6 +303,21 @@
     .tag-item:hover {
         background-color: var(--primary-dark);
         color: white;
+    }
+
+    @media (max-width: 768px) {
+        .guest-form-fields {
+            grid-template-columns: 1fr;
+        }
+        
+        .comment-reply {
+            margin-left: 1.5rem;
+        }
+        
+        .post-meta {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
     }
 </style>
 {% endblock %}
@@ -258,27 +411,25 @@
                     <i class="fas fa-comments me-2"></i>Comments ({{ comments.count }})
                 </h3>
                 
-                {% comment %} <!-- Comment Form -->
-                {% if user.is_authenticated %} {% endcomment %}
+                <!-- Main Comment Form -->
                 <div class="comment-item mb-4">
                     <h5 class="mb-3">Leave a Comment</h5>
                     <form method="post" action="{% url 'myapp:add_comment' post.slug %}">
                         {% csrf_token %}
+                        {% if not user.is_authenticated %}
+                        <div class="guest-form-fields">
+                            <input type="text" name="guest_name" placeholder="Your Name" required>
+                            <input type="email" name="guest_email" placeholder="Your Email" required>
+                        </div>
+                        {% endif %}
                         {{ comment_form.content }}
                         <button type="submit" class="btn btn-primary mt-3">
                             <i class="fas fa-paper-plane me-2"></i>Post Comment
                         </button>
                     </form>
                 </div>
-            </div>
-                {% comment %} {% else %}
-                <div class="comment-item mb-4 text-center">
-                    <p class="mb-3">Please <a href="{% url 'members:login' %}">login</a> to leave a comment.</p>
-                </div>
-                {% endif %} {% endcomment %}
                 
-            <!-- Comments List -->
-            <div class="comments-section">
+                <!-- Comments List -->
                 {% for comment in comments %}
                 <div class="comment-item">
                     <div class="comment-header">
@@ -295,8 +446,12 @@
                             <h6 class="mb-0">
                                 {% if comment.author %}
                                     {{ comment.author.get_full_name|default:comment.author.username }}
+                                    {% if comment.author == post.author %}
+                                        <span class="comment-role-badge">Author</span>
+                                    {% endif %}
                                 {% else %}
                                     {{ comment.guest_name }}
+                                    <span class="comment-role-badge guest-badge">Guest</span>
                                 {% endif %}
                             </h6>
                             <small class="text-muted">
@@ -305,6 +460,42 @@
                         </div>
                     </div>
                     <p class="mb-0">{{ comment.content|linebreaks }}</p>
+
+                    <!-- Comment Actions -->
+                    <div class="comment-actions">
+                        <button class="reply-btn" onclick="toggleReplyForm({{ comment.id }})">
+                            <i class="fas fa-reply"></i>
+                            Reply
+                        </button>
+                    </div>
+
+                    <!-- Reply Form -->
+                    <div class="reply-form" id="reply-form-{{ comment.id }}">
+                        <div class="reply-form-header">
+                            <i class="fas fa-reply me-1"></i>
+                            Reply to {{ comment.author.username|default:comment.guest_name }}
+                        </div>
+                        <form method="post" action="{% url 'myapp:add_comment' post.slug %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                            {% if not user.is_authenticated %}
+                            <div class="guest-form-fields">
+                                <input type="text" name="guest_name" placeholder="Your Name" required>
+                                <input type="email" name="guest_email" placeholder="Your Email" required>
+                            </div>
+                            {% endif %}
+                            <textarea name="content" class="reply-content" placeholder="Write your reply..." required></textarea>
+                            <div class="reply-submit-group">
+                                <button type="submit" class="btn-submit-reply">
+                                    <i class="fas fa-paper-plane me-1"></i>
+                                    Post Reply
+                                </button>
+                                <button type="button" class="btn-cancel-reply" onclick="hideReplyForm({{ comment.id }})">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
 
                     <!-- Comment Replies -->
                     {% for reply in comment.replies.all %}
@@ -323,8 +514,12 @@
                                 <h6 class="mb-0">
                                     {% if reply.author %}
                                         {{ reply.author.get_full_name|default:reply.author.username }}
+                                        {% if reply.author == post.author %}
+                                            <span class="comment-role-badge">Author</span>
+                                        {% endif %}
                                     {% else %}
                                         {{ reply.guest_name }}
+                                        <span class="comment-role-badge guest-badge">Guest</span>
                                     {% endif %}
                                 </h6>
                                 <small class="text-muted">
@@ -428,5 +623,45 @@ function likePost(postId) {
     })
     .catch(error => console.error('Error:', error));
 }
+
+function toggleReplyForm(commentId) {
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    const allReplyForms = document.querySelectorAll('.reply-form');
+    
+    // Hide all other reply forms
+    allReplyForms.forEach(form => {
+        if (form.id !== `reply-form-${commentId}`) {
+            form.classList.remove('active');
+        }
+    });
+    
+    // Toggle current form
+    if (replyForm.classList.contains('active')) {
+        replyForm.classList.remove('active');
+    } else {
+        replyForm.classList.add('active');
+        // Focus on the content textarea
+        const textarea = replyForm.querySelector('.reply-content');
+        if (textarea) {
+            textarea.focus();
+        }
+    }
+}
+
+function hideReplyForm(commentId) {
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    replyForm.classList.remove('active');
+}
+
+// Auto-resize textareas
+document.addEventListener('DOMContentLoaded', function() {
+    const textareas = document.querySelectorAll('.reply-content');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+});
 </script>
 {% endblock %}
