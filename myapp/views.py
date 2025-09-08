@@ -23,7 +23,7 @@ class HomeView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        
         context['featured_posts'] = Post.objects.filter(
             status='published', 
             is_featured=True
@@ -73,7 +73,7 @@ class PostDetailView(DetailView):
             is_approved=True
         ).select_related('author').prefetch_related('replies')
         
-        context['comment_form'] = CommentForm()
+        context['comment_form'] = CommentForm(user=self.request.user)
 
         context['related_posts'] = Post.objects.filter(
             category=post.category,
@@ -205,27 +205,54 @@ class SearchView(ListView):
 @require_POST
 def add_comment(request, slug):
     post = get_object_or_404(Post, slug=slug, status='published')
+    
+    # Create form with POST data and current user
     form = CommentForm(request.POST, user=request.user)
 
     if form.is_valid():
         comment = form.save(commit=False)
         comment.post = post
 
+        # Handle authenticated vs guest users
         if request.user.is_authenticated:
-            comment.author = request.user 
+            comment.author = request.user
+            # Clear guest fields for authenticated users
+            comment.guest_name = None
+            comment.guest_email = None
         else:
+            # For guest users, get the data from the cleaned form
             comment.guest_name = form.cleaned_data.get('guest_name')
             comment.guest_email = form.cleaned_data.get('guest_email')
+            comment.author = None
 
-        # Handle reply to comment
+        # Handle reply to another comment
         parent_id = request.POST.get('parent_id')
         if parent_id:
-            comment.parent = get_object_or_404(Comment, id=parent_id)
+            try:
+                parent_comment = get_object_or_404(Comment, id=parent_id, post=post)
+                comment.parent = parent_comment
+            except (ValueError, Comment.DoesNotExist):
+                messages.error(request, 'Invalid parent comment.')
+                return redirect('myapp:post_detail', slug=slug)
 
         comment.save()
-        messages.success(request, 'Comment added successfully!')
+        
+        # Success message varies based on user type
+        if request.user.is_authenticated:
+            messages.success(request, 'Comment added successfully!')
+        else:
+            messages.success(request, 'Comment added successfully! It may take some time to appear.')
     else:
-        messages.error(request, 'Error adding comment. Please try again.')
+        # Handle form errors
+        error_messages = []
+        for field, errors in form.errors.items():
+            for error in errors:
+                error_messages.append(f"{field.replace('_', ' ').title()}: {error}")
+        
+        if error_messages:
+            messages.error(request, 'Please correct the following errors: ' + '; '.join(error_messages))
+        else:
+            messages.error(request, 'Error adding comment. Please try again.')
 
     return redirect('myapp:post_detail', slug=slug)
 
@@ -258,7 +285,6 @@ def like_post(request):
 
 
 def subscribe_newsletter(request):
-
     if request.method == 'POST':
         form = NewsletterForm(request.POST)
         if form.is_valid():
@@ -275,36 +301,9 @@ def subscribe_newsletter(request):
     return redirect('myapp:home')
 
 def custom_404_view(request, exception=None):
-
     return render(request, '404.html', status=404)
 
-# @require_POST 
-# def ajax_subscribe_newsletter(request):
-
-#     form = NewsletterForm(request.POST)
-    
-#     if form.is_valid():
-#         email = form.cleaned_data['email']
-#         newsletter, created = Newsletter.objects.get_or_create(email=email)
-        
-#         if created:
-#             return JsonResponse({
-#                 'success': True, 
-#                 'message': 'Successfully subscribed to newsletter!'
-#             })
-#         else:
-#             return JsonResponse({
-#                 'success': True, 
-#                 'message': 'You are already subscribed!'
-#             })
-#     else:
-#         return JsonResponse({
-#             'success': False, 
-#             'message': 'Please enter a valid email address.'
-#         })
-
 def about_view(request):
-
     context = {
         'total_posts': Post.objects.filter(status='published').count(),
         'total_categories': Category.objects.count(),
@@ -320,7 +319,6 @@ def about_view(request):
     return render(request, 'myapp/about.html', context)
 
 def contact_view(request):
-
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
